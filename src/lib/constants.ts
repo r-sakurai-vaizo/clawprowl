@@ -21,10 +21,10 @@ const rightX = OFFICE.x + halfW + OFFICE.corridorWidth;
 const bottomY = OFFICE.y + halfH + OFFICE.corridorWidth;
 
 export const ZONES = {
-  desk: { x: OFFICE.x, y: OFFICE.y, width: halfW, height: halfH, label: "Desk Zone" },
-  meeting: { x: rightX, y: OFFICE.y, width: halfW, height: halfH, label: "Meeting Zone" },
-  hotDesk: { x: OFFICE.x, y: bottomY, width: halfW, height: halfH, label: "Hot Desk Zone" },
-  lounge: { x: rightX, y: bottomY, width: halfW, height: halfH, label: "Lounge Zone" },
+  desk: { x: OFFICE.x, y: OFFICE.y, width: halfW, height: halfH, label: "執務エリア" },
+  meeting: { x: rightX, y: OFFICE.y, width: halfW, height: halfH, label: "会議室" },
+  hotDesk: { x: OFFICE.x, y: bottomY, width: halfW, height: halfH, label: "フリーデスク" },
+  lounge: { x: rightX, y: bottomY, width: halfW, height: halfH, label: "ラウンジ" },
 } as const;
 
 // Corridor entrance point: bottom center of the building (main entrance door)
@@ -68,13 +68,13 @@ export const STATUS_COLORS: Record<AgentVisualStatus, string> = {
 };
 
 export const STATUS_LABELS: Record<AgentVisualStatus, string> = {
-  idle: "Idle",
-  thinking: "Thinking",
-  tool_calling: "Tool Calling",
-  speaking: "Replying",
-  spawning: "Spawning",
-  error: "Error",
-  offline: "Offline",
+  idle: "待機中",
+  thinking: "思考中",
+  tool_calling: "ツール実行中",
+  speaking: "応答中",
+  spawning: "起動中",
+  error: "エラー",
+  offline: "オフライン",
 };
 
 export function getZoneLabel(zone: keyof typeof ZONES): string {

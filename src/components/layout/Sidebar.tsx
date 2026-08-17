@@ -156,7 +156,11 @@ export function Sidebar() {
               }`}
             >
               {agent.avatarUrl ? (
-                <img src={agent.avatarUrl} alt={agent.name} className="h-6 w-6 rounded-full object-cover shrink-0" />
+                <img
+                  src={agent.avatarUrl}
+                  alt={agent.name}
+                  className="h-6 w-6 rounded-full object-cover shrink-0"
+                />
               ) : (
                 <SvgAvatar agentId={agent.id} size={24} />
               )}
@@ -221,7 +225,6 @@ export function Sidebar() {
           <AgentDetailPanel />
         </CollapsibleSection>
       )}
-
 
       {/* Event timeline */}
       <CollapsibleSection

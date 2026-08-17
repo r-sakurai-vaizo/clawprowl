@@ -1,0 +1,55 @@
+{
+  "metrics": {
+    "activeAgents": "稼働中のAI社員",
+    "totalTokens": "総トークン数",
+    "collaboration": "共同作業",
+    "tokenRate": "トークン速度",
+    "tokenRateUnit": "/分",
+    "tabs": {
+      "overview": "概要",
+      "trend": "推移",
+      "topology": "関係図",
+      "activity": "活動状況"
+    }
+  },
+  "agentDetail": {
+    "deselect": "選択を解除",
+    "toolCallHistory": "ツール実行履歴"
+  },
+  "eventTimeline": {
+    "newEvents": "新しいイベント ↓"
+  },
+  "tokenChart": {
+    "total": "合計：",
+    "totalLine": "合計"
+  },
+  "activityHeatmap": {
+    "eventsUnit": "件"
+  },
+  "bagsAnalytics": {
+    "description": "PROWLトークンのMintアドレスとBags APIキーを入力すると、最新の分析結果を確認できます。",
+    "tokenMintPlaceholder": "トークンMintアドレス（Base58）",
+    "apiKeyPlaceholder": "Bags APIキー",
+    "connect": "接続",
+    "loading": "読み込み中…",
+    "refresh": "更新",
+    "disconnect": "切断",
+    "title": "PROWL分析",
+    "fetchFailed": "分析データを取得できませんでした",
+    "tabs": {
+      "overview": "概要",
+      "claimers": "受取人",
+      "events": "受取履歴"
+    },
+    "lifetimeFees": "累計手数料",
+    "totalClaimed": "受取総額",
+    "claimers": "受取人数",
+    "claimEvents": "受取件数",
+    "creator": "作成者",
+    "royalty": "ロイヤリティ：{{percent}}%・受取済み {{amount}} SOL",
+    "royaltyShort": "ロイヤリティ {{percent}}%",
+    "noClaimers": "受取人はまだいません",
+    "noEvents": "受取履歴はまだありません",
+    "transaction": "取引 ↗"
+  }
+}

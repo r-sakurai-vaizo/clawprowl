@@ -154,23 +154,12 @@ export const useAgentsStore = create<AgentsStoreState>((set, get) => ({
       const result = await getAdapter().agentsList();
 
       // Map of known agent name → avatar URL (fallback if backend doesn't send identity.avatarUrl)
-      const KNOWN_AVATARS: Record<string, string> = {
-        PROWL: "https://pbs.twimg.com/profile_images/2029487683278708736/JqpyzvWW_400x400.jpg",
-        "0xDeployer": "https://pbs.twimg.com/profile_images/1816688728951476224/PkVN69ln_400x400.jpg",
-        FINN: "https://pbs.twimg.com/profile_images/2003998762503745536/jDpf21Ig_400x400.jpg",
-        BANKR: "https://pbs.twimg.com/profile_images/1951545493936545792/AriqgxQN_400x400.jpg",
-      };
-
       const agents = result.agents.map((a) => {
-        const displayName = a.identity?.name ?? a.name ?? a.id;
-        const hasAvatar = a.identity?.avatarUrl || a.identity?.avatar;
-        const fallbackAvatar = !hasAvatar ? KNOWN_AVATARS[displayName] : undefined;
         return {
           ...a,
           default: a.id === result.defaultId,
           identity: {
             ...a.identity,
-            ...(fallbackAvatar ? { avatarUrl: fallbackAvatar } : {}),
           },
         };
       });

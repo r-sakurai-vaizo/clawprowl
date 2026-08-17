@@ -47,7 +47,7 @@ function ModelForm({ model, onChange, onRemove, defaultCollapsed = false }: Mode
   };
 
   const updateCompat = (partial: Partial<ModelCompatConfig>) => {
-    onChange({ ...model, compat: { ...(model.compat ?? {}), ...partial } });
+    onChange({ ...model, compat: { ...model.compat, ...partial } });
   };
 
   const label = model.name || model.id || t("settings.providers.models.untitled");
@@ -65,16 +65,16 @@ function ModelForm({ model, onChange, onRemove, defaultCollapsed = false }: Mode
           <span className="truncate max-w-xs">{label}</span>
           {model.isNew && (
             <span className="inline-flex items-center rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
-              New
+              {t("settings.providers.models.new")}
             </span>
           )}
           {model.reasoning && (
-            <span title="reasoning">
+            <span title={t("settings.providers.models.reasoning")}>
               <Brain className="h-3.5 w-3.5 text-purple-500" />
             </span>
           )}
           {model.input?.includes("image") && (
-            <span title="image">
+            <span title={t("settings.providers.models.input_image")}>
               <Image className="h-3.5 w-3.5 text-green-500" />
             </span>
           )}

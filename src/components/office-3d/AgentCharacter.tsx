@@ -42,7 +42,15 @@ export function AgentCharacter({ agent }: AgentCharacterProps) {
   const tickMovement = useOfficeStore((s) => s.tickMovement);
 
   const baseColor = isSubAgent ? "#60a5fa" : generateAvatar3dColor(agent.id);
-  const bodyOpacity = isPlaceholder ? 0.25 : isUnconfirmed ? 0.35 : isOffline ? 0.4 : isSubAgent ? 0.6 : 1;
+  const bodyOpacity = isPlaceholder
+    ? 0.25
+    : isUnconfirmed
+      ? 0.35
+      : isOffline
+        ? 0.4
+        : isSubAgent
+          ? 0.6
+          : 1;
   const displayColor = isOffline || isPlaceholder || isUnconfirmed ? "#6b7280" : baseColor;
 
   const [targetX, , targetZ] = position2dTo3d(agent.position);

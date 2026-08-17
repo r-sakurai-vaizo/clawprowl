@@ -197,10 +197,15 @@ describe("office-store", () => {
     });
 
     it("setTheme persists to localStorage", () => {
-      const spy = vi.spyOn(Storage.prototype, "setItem");
+      const setItem = vi.fn();
+      const previous = Object.getOwnPropertyDescriptor(window, "localStorage");
+      Object.defineProperty(window, "localStorage", {
+        configurable: true,
+        value: { setItem },
+      });
       useOfficeStore.getState().setTheme("light");
-      expect(spy).toHaveBeenCalledWith("clawprowl-theme", "light");
-      spy.mockRestore();
+      expect(setItem).toHaveBeenCalledWith("clawprowl-theme", "light");
+      if (previous) Object.defineProperty(window, "localStorage", previous);
     });
 
     it("setTheme switches back to dark", () => {

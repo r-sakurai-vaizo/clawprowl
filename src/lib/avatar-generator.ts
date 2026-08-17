@@ -49,20 +49,24 @@ export function generateAvatar(agentId: string, agentName?: string): AvatarInfo 
 /** Deterministic hex color for 3D MeshStandardMaterial */
 export function generateAvatar3dColor(agentId: string): string {
   const hash = hashString(agentId);
-  return PALETTE[hash % PALETTE.length];
+  return JAPANESE_UNIFORM_COLORS[hash % JAPANESE_UNIFORM_COLORS.length];
 }
 
 // --- SVG Avatar ---
 
 export type FaceShape = "round" | "square" | "oval";
-export type HairStyle = "short" | "spiky" | "side-part" | "curly" | "buzz";
-export type EyeStyle = "dot" | "line" | "wide";
+export type HairStyle = "short" | "spiky" | "bob" | "hime" | "side-tail" | "messy";
+export type EyeStyle = "sparkle" | "soft" | "smile";
+export type AccessoryStyle = "none" | "ribbon" | "hairpin" | "headband" | "glasses";
 
 const FACE_SHAPES: FaceShape[] = ["round", "square", "oval"];
-const HAIR_STYLES: HairStyle[] = ["short", "spiky", "side-part", "curly", "buzz"];
-const EYE_STYLES: EyeStyle[] = ["dot", "line", "wide"];
-const SKIN_COLORS = ["#fde2c8", "#f5c5a0", "#d4956b", "#a0714f", "#6b4226", "#ffe0bd"];
-const HAIR_COLORS = ["#2c1b0e", "#5a3214", "#c2884a", "#e8c068"];
+const HAIR_STYLES: HairStyle[] = ["short", "spiky", "bob", "hime", "side-tail", "messy"];
+const EYE_STYLES: EyeStyle[] = ["sparkle", "soft", "smile"];
+const ACCESSORIES: AccessoryStyle[] = ["none", "ribbon", "hairpin", "headband", "glasses"];
+const SKIN_COLORS = ["#ffe4d6", "#f8d5bd", "#e8b994", "#c98f69", "#8f5f43", "#ffdcc6"];
+const HAIR_COLORS = ["#17151d", "#28243a", "#3b241f", "#56362d", "#243349", "#713c4d"];
+const PASTEL_BACKGROUNDS = ["#fce7f3", "#e0e7ff", "#dbeafe", "#ccfbf1", "#fef3c7", "#ede9fe"];
+const JAPANESE_UNIFORM_COLORS = ["#24324a", "#334155", "#4c3f65", "#315b62", "#6b3e52", "#3f5368"];
 
 export interface SvgAvatarData {
   faceShape: FaceShape;
@@ -71,6 +75,8 @@ export interface SvgAvatarData {
   skinColor: string;
   hairColor: string;
   shirtColor: string;
+  backgroundColor: string;
+  accessoryStyle: AccessoryStyle;
 }
 
 export function generateSvgAvatar(agentId: string): SvgAvatarData {
@@ -83,6 +89,8 @@ export function generateSvgAvatar(agentId: string): SvgAvatarData {
     eyeStyle: EYE_STYLES[bits(6, EYE_STYLES.length)],
     skinColor: SKIN_COLORS[bits(8, SKIN_COLORS.length)],
     hairColor: HAIR_COLORS[bits(11, HAIR_COLORS.length)],
-    shirtColor: PALETTE[h % PALETTE.length],
+    shirtColor: JAPANESE_UNIFORM_COLORS[h % JAPANESE_UNIFORM_COLORS.length],
+    backgroundColor: PASTEL_BACKGROUNDS[bits(17, PASTEL_BACKGROUNDS.length)],
+    accessoryStyle: ACCESSORIES[bits(20, ACCESSORIES.length)],
   };
 }

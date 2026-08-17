@@ -238,7 +238,9 @@ class LocalPersistence {
       const eventStore = eventTx.objectStore(STORE_EVENTS);
       const eventIndex = eventStore.index("timestamp");
       const expiredEventRange = IDBKeyRange.upperBound(now - eventExpireMs);
-      const expiredEventKeys = await idbRequest<IDBValidKey[]>(eventIndex.getAllKeys(expiredEventRange));
+      const expiredEventKeys = await idbRequest<IDBValidKey[]>(
+        eventIndex.getAllKeys(expiredEventRange),
+      );
       for (const key of expiredEventKeys) {
         eventStore.delete(key);
       }

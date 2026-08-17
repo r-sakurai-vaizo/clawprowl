@@ -73,6 +73,6 @@ describe("AgentAvatar", () => {
   it("shows sub-agent badge when isSubAgent is true", () => {
     const { container } = renderAvatar({ ...mockAgent, isSubAgent: true });
     const badge = container.querySelector("text");
-    expect(badge?.textContent).toBe("S");
+    expect(badge?.textContent).toBe("補");
   });
 });

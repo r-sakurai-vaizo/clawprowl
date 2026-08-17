@@ -9,7 +9,13 @@ function makeMsg(id: string, ts: number, role: "user" | "assistant" = "user"): C
 }
 
 function makeEvent(ts: number, agentId = "a1"): EventHistoryItem {
-  return { timestamp: ts, agentId, agentName: agentId, stream: "lifecycle", summary: `event-${ts}` };
+  return {
+    timestamp: ts,
+    agentId,
+    agentName: agentId,
+    stream: "lifecycle",
+    summary: `event-${ts}`,
+  };
 }
 
 describe("LocalPersistence", () => {

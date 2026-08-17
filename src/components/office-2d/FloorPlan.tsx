@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { SpeechBubbleOverlay } from "@/components/overlays/SpeechBubble";
 import type { VisualAgent } from "@/gateway/types";
+import i18n from "@/i18n";
 import {
   SVG_WIDTH,
   SVG_HEIGHT,
@@ -42,10 +43,7 @@ export function FloorPlan() {
     () => agentList.filter((a) => a.zone === "meeting" && !a.movement),
     [agentList],
   );
-  const walkingAgents = useMemo(
-    () => agentList.filter((a) => a.movement !== null),
-    [agentList],
-  );
+  const walkingAgents = useMemo(() => agentList.filter((a) => a.movement !== null), [agentList]);
   const corridorAgents = useMemo(
     () => agentList.filter((a) => a.zone === "corridor" && !a.movement),
     [agentList],
@@ -636,7 +634,7 @@ function EntranceDoor({ isDark }: { isDark: boolean }) {
         fontFamily="system-ui, sans-serif"
         letterSpacing="0.15em"
       >
-        ENTRANCE
+        {i18n.t("office:entrance")}
       </text>
     </g>
   );

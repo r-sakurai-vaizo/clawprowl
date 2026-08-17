@@ -1,0 +1,37 @@
+{
+  "dock": {
+    "collapseDock": "チャットを折りたたむ",
+    "expandDock": "チャットを開く",
+    "attachmentWip": "添付機能（準備中）",
+    "placeholder": "メッセージを入力…（Enterで送信、Shift+Enterで改行）",
+    "startNewChat": "新しい会話を始める",
+    "thinkingStatus": "考えています…"
+  },
+  "agentSelector": {
+    "defaultLabel": "AI社員"
+  },
+  "dialog": {
+    "sendMessage": "メッセージを送信",
+    "killConfirm": "実行停止の確認",
+    "inputPlaceholder": "指示を入力…",
+    "killWarning": "<strong>{{name}}</strong> の現在の実行を停止しますか？この操作は取り消せません。",
+    "kill": "実行を停止"
+  },
+  "chatDialog": {
+    "loadingHistory": "履歴を読み込んでいます…",
+    "scrollToBottom": "一番下へ移動"
+  },
+  "sessionSwitcher": {
+    "noSessions": "ほかのセッションはありません",
+    "newSession": "新しいセッション"
+  },
+  "contextMenu": {
+    "pause": "一時停止",
+    "resume": "再開",
+    "notSupported": "現在は対応していません",
+    "kill": "実行を停止",
+    "sendMessage": "メッセージを送信",
+    "viewDetail": "詳細を表示",
+    "operatorRequired": "オペレーター権限が必要です"
+  }
+}

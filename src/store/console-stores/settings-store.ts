@@ -7,13 +7,11 @@ const LANG_KEY = "clawprowl-console-lang";
 const DEV_MODE_KEY = "clawprowl-console-dev-mode";
 
 function readLocal(key: string, fallback: string): string {
-  if (typeof window === "undefined") return fallback;
-  return localStorage.getItem(key) ?? fallback;
+  return (typeof window === "undefined" ? null : window.localStorage?.getItem(key)) ?? fallback;
 }
 
 function readLocalBool(key: string, fallback: boolean): boolean {
-  if (typeof window === "undefined") return fallback;
-  const val = localStorage.getItem(key);
+  const val = typeof window === "undefined" ? null : window.localStorage?.getItem(key);
   if (val === null) return fallback;
   return val === "true";
 }
@@ -30,21 +28,21 @@ interface ConsoleSettingsState {
 
 export const useConsoleSettingsStore = create<ConsoleSettingsState>((set) => ({
   theme: readLocal(THEME_KEY, "system") as ThemePreference,
-  language: readLocal(LANG_KEY, "en"),
+  language: readLocal(LANG_KEY, "ja"),
   devModeUnlocked: readLocalBool(DEV_MODE_KEY, false),
 
   setTheme: (theme) => {
-    localStorage.setItem(THEME_KEY, theme);
+    window.localStorage?.setItem(THEME_KEY, theme);
     set({ theme });
   },
 
   setLanguage: (language) => {
-    localStorage.setItem(LANG_KEY, language);
+    window.localStorage?.setItem(LANG_KEY, language);
     set({ language });
   },
 
   setDevModeUnlocked: (devModeUnlocked) => {
-    localStorage.setItem(DEV_MODE_KEY, String(devModeUnlocked));
+    window.localStorage?.setItem(DEV_MODE_KEY, String(devModeUnlocked));
     set({ devModeUnlocked });
   },
 }));

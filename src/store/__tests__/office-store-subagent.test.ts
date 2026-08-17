@@ -142,7 +142,8 @@ describe("office-store Sub-Agent management", () => {
   });
 
   it("returnFromMeeting returns sub-agent to hotDesk", () => {
-    const { addSubAgent, updateAgent, moveToMeeting, completeMovement, returnFromMeeting } = useOfficeStore.getState();
+    const { addSubAgent, updateAgent, moveToMeeting, completeMovement, returnFromMeeting } =
+      useOfficeStore.getState();
     addSubAgent("parent", mkSubInfo("sub-meet"));
     updateAgent("sub-meet", { zone: "hotDesk" });
 

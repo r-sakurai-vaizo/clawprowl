@@ -40,7 +40,7 @@ export function WhatsAppQrFlow({ onClose }: WhatsAppQrFlowProps) {
         {qrDataUrl && (
           <img
             src={qrDataUrl}
-            alt="WhatsApp QR Code"
+            alt="WhatsApp連携用QRコード"
             className="h-48 w-48 rounded-lg border border-gray-200 dark:border-gray-700"
           />
         )}

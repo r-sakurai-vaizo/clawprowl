@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { allocatePosition, adaptiveCols, calculateDeskSlots, calculateLoungePositions } from "@/lib/position-allocator";
+import {
+  allocatePosition,
+  adaptiveCols,
+  calculateDeskSlots,
+  calculateLoungePositions,
+} from "@/lib/position-allocator";
 import { ZONES } from "@/lib/constants";
 
 describe("allocatePosition", () => {

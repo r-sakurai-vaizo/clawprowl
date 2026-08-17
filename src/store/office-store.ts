@@ -52,12 +52,17 @@ let lastMeetingGroupsHash = "";
 const MEETING_GATHERING_THROTTLE_MS = 500;
 
 function isActiveStatus(status: AgentVisualStatus): boolean {
-  return status === "thinking" || status === "tool_calling" || status === "speaking" || status === "spawning";
+  return (
+    status === "thinking" ||
+    status === "tool_calling" ||
+    status === "speaking" ||
+    status === "spawning"
+  );
 }
 
 function getInitialChatDockHeight(): number {
-  if (typeof window === "undefined") return DEFAULT_CHAT_DOCK_HEIGHT;
-  const stored = localStorage.getItem(CHAT_DOCK_HEIGHT_KEY);
+  const stored =
+    typeof window === "undefined" ? null : window.localStorage?.getItem(CHAT_DOCK_HEIGHT_KEY);
   if (stored) {
     const parsed = parseInt(stored, 10);
     if (!Number.isNaN(parsed) && parsed >= 150 && parsed <= 800) return parsed;
@@ -66,10 +71,8 @@ function getInitialChatDockHeight(): number {
 }
 
 function getInitialTheme(): ThemeMode {
-  if (typeof window === "undefined") {
-    return "dark";
-  }
-  const stored = localStorage.getItem(THEME_STORAGE_KEY);
+  const stored =
+    typeof window === "undefined" ? null : window.localStorage?.getItem(THEME_STORAGE_KEY);
   if (stored === "light" || stored === "dark") {
     return stored;
   }
@@ -204,7 +207,8 @@ function activateFromLoungePlaceholder(
       if (a.zone === "lounge") loungeOccupied.add(positionKey(a.position));
     }
     const freePos = loungePositions.find((p) => !loungeOccupied.has(positionKey(p)));
-    agent.position = freePos ?? loungePositions[0] ?? { x: ZONES.lounge.x + 60, y: ZONES.lounge.y + 40 };
+    agent.position = freePos ??
+      loungePositions[0] ?? { x: ZONES.lounge.x + 60, y: ZONES.lounge.y + 40 };
     agent.zone = "lounge";
   }
 }
@@ -305,7 +309,7 @@ export const useOfficeStore = create<OfficeStore>()(
             state.agents.delete(oldId);
 
             placeholder.id = info.agentId;
-            placeholder.name = info.label || `Sub-${info.agentId.slice(0, 6)}`;
+            placeholder.name = info.label || `応援担当-${info.agentId.slice(0, 6)}`;
             placeholder.isPlaceholder = false;
             placeholder.isSubAgent = true;
             placeholder.parentAgentId = parentId;
@@ -321,7 +325,7 @@ export const useOfficeStore = create<OfficeStore>()(
             }
             const agent = createVisualAgent(
               info.agentId,
-              info.label || `Sub-${info.agentId.slice(0, 6)}`,
+              info.label || `応援担当-${info.agentId.slice(0, 6)}`,
               true,
               occupied,
             );
@@ -404,7 +408,7 @@ export const useOfficeStore = create<OfficeStore>()(
           const phId = `placeholder-${phIdx}`;
           const ph: VisualAgent = {
             id: phId,
-            name: `Standby-${phIdx}`,
+            name: `待機メンバー-${phIdx}`,
             status: "idle",
             position: freeLounge,
             currentTool: null,
@@ -464,9 +468,7 @@ export const useOfficeStore = create<OfficeStore>()(
         if (agent.movement && agent.movement.toZone === toZone) return;
 
         const fromZone = agent.zone;
-        const to =
-          targetPos ??
-          allocateNextPosition(state.agents, toZone, state.maxSubAgents);
+        const to = targetPos ?? allocateNextPosition(state.agents, toZone, state.maxSubAgents);
         const path = planWalkPath(agent.position, to, fromZone, toZone);
         const duration = calculateWalkDuration(path);
 
@@ -521,7 +523,7 @@ export const useOfficeStore = create<OfficeStore>()(
           if (state.agents.has(phId)) continue;
           const ph: VisualAgent = {
             id: phId,
-            name: `Standby-${i}`,
+            name: `待機メンバー-${i}`,
             status: "idle",
             position: { ...loungePositions[i] },
             currentTool: null,
@@ -598,9 +600,8 @@ export const useOfficeStore = create<OfficeStore>()(
         const occupied = new Set<string>();
         for (const summary of summaries) {
           const name = summary.identity?.name ?? summary.name ?? summary.id;
-          const KNOWN_AVATARS: Record<string, string> = { PROWL: "https://pbs.twimg.com/profile_images/2029487683278708736/JqpyzvWW_400x400.jpg", "0xDeployer": "https://pbs.twimg.com/profile_images/1816688728951476224/PkVN69ln_400x400.jpg", FINN: "https://pbs.twimg.com/profile_images/2003998762503745536/jDpf21Ig_400x400.jpg", BANKR: "https://pbs.twimg.com/profile_images/1951545493936545792/AriqgxQN_400x400.jpg" };
-          const _name = summary.identity?.name ?? summary.name ?? summary.id;
-          const avatarUrl = summary.identity?.avatarUrl ?? (summary.identity as { avatar?: string })?.avatar ?? KNOWN_AVATARS[_name];
+          const avatarUrl =
+            summary.identity?.avatarUrl ?? (summary.identity as { avatar?: string })?.avatar;
           const agent = createVisualAgent(summary.id, name, false, occupied, true, avatarUrl);
           occupied.add(positionKey(agent.position));
           state.agents.set(summary.id, agent);
@@ -609,9 +610,7 @@ export const useOfficeStore = create<OfficeStore>()(
         state.globalMetrics = computeMetrics(state.agents, state.globalMetrics);
       });
       // Prefill lounge with placeholder sub-agents
-      useOfficeStore.getState().prefillLoungePlaceholders(
-        useOfficeStore.getState().maxSubAgents,
-      );
+      useOfficeStore.getState().prefillLoungePlaceholders(useOfficeStore.getState().maxSubAgents);
     },
 
     processAgentEvent: (event: AgentEventPayload) => {
@@ -662,7 +661,7 @@ export const useOfficeStore = create<OfficeStore>()(
             info: {
               sessionKey: event.sessionKey ?? event.runId,
               agentId: dataAgentId,
-              label: `Sub-${dataAgentId.slice(0, 8)}`,
+              label: `応援担当-${dataAgentId.slice(0, 8)}`,
               task: "",
               requesterSessionKey: event.sessionKey ?? "",
               startedAt: event.ts,
@@ -680,12 +679,24 @@ export const useOfficeStore = create<OfficeStore>()(
             for (const a of state.agents.values()) {
               occupied.add(positionKey(a.position));
             }
-            const agent = createVisualAgent(agentId, `Agent-${agentId.slice(0, 6)}`, false, occupied, true);
+            const agent = createVisualAgent(
+              agentId,
+              `AI社員-${agentId.slice(0, 6)}`,
+              false,
+              occupied,
+              true,
+            );
             agent.runId = event.runId;
             state.agents.set(agentId, agent);
           } else {
             // Create as unconfirmed — will be confirmed by poller or timeout
-            const agent = createVisualAgent(agentId, `Agent-${agentId.slice(0, 6)}`, false, new Set(), false);
+            const agent = createVisualAgent(
+              agentId,
+              `AI社員-${agentId.slice(0, 6)}`,
+              false,
+              new Set(),
+              false,
+            );
             agent.runId = event.runId;
             state.agents.set(agentId, agent);
             newUnconfirmedId = agentId;
@@ -760,11 +771,7 @@ export const useOfficeStore = create<OfficeStore>()(
       }
 
       // Sub-agent lifecycle end via explicit payload (mock adapter)
-      if (
-        event.stream === "lifecycle" &&
-        event.data.phase === "end" &&
-        event.data.agentId
-      ) {
+      if (event.stream === "lifecycle" && event.data.phase === "end" && event.data.agentId) {
         const endId = event.data.agentId as string;
         const sub = useOfficeStore.getState().agents.get(endId);
         if (sub?.isSubAgent && !sub.isPlaceholder) {
@@ -803,7 +810,7 @@ export const useOfficeStore = create<OfficeStore>()(
         state.theme = theme;
       });
       try {
-        localStorage.setItem(THEME_STORAGE_KEY, theme);
+        window.localStorage?.setItem(THEME_STORAGE_KEY, theme);
       } catch {
         // localStorage unavailable
       }
@@ -847,7 +854,7 @@ export const useOfficeStore = create<OfficeStore>()(
         state.chatDockHeight = height;
       });
       try {
-        localStorage.setItem(CHAT_DOCK_HEIGHT_KEY, String(height));
+        window.localStorage?.setItem(CHAT_DOCK_HEIGHT_KEY, String(height));
       } catch {
         // localStorage unavailable
       }
@@ -975,11 +982,7 @@ function scheduleMeetingGathering(): void {
     const state = useOfficeStore.getState();
     if (!state.agentToAgentConfig.enabled) return;
 
-    const groups = detectMeetingGroups(
-      state.links,
-      state.agents,
-      state.agentToAgentConfig.allow,
-    );
+    const groups = detectMeetingGroups(state.links, state.agents, state.agentToAgentConfig.allow);
     const hash = JSON.stringify(groups.map((g) => g.agentIds.sort()));
     if (hash === lastMeetingGroupsHash) return;
     lastMeetingGroupsHash = hash;

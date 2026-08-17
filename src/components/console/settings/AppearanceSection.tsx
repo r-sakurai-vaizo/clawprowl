@@ -11,9 +11,7 @@ const THEME_OPTIONS: Array<{ value: ThemePreference; icon: typeof Sun; labelKey:
   { value: "system", icon: Monitor, labelKey: "settings.appearance.themeSystem" },
 ];
 
-const LANG_OPTIONS = [
-  { value: "en", labelKey: "settings.appearance.langEn" },
-];
+const LANG_OPTIONS = [{ value: "en", labelKey: "settings.appearance.langEn" }];
 
 function resolveSystemTheme(): "light" | "dark" {
   if (typeof window === "undefined") return "light";

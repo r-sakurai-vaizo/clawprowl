@@ -29,11 +29,34 @@ import type {
 } from "./adapter-types";
 import type { AgentsListResponse } from "./types";
 
+const MOCK_AGENT_IDENTITIES = [
+  { id: "main", name: "桜井さくら", emoji: "🌸", default: true },
+  { id: "tech-lead", name: "佐藤 蓮", emoji: "💻", default: false },
+  { id: "researcher", name: "鈴木 葵", emoji: "🔎", default: false },
+  { id: "sales", name: "高橋 湊", emoji: "📈", default: false },
+  { id: "planner", name: "田中 結衣", emoji: "🗓️", default: false },
+  { id: "developer", name: "伊藤 陽翔", emoji: "⚙️", default: false },
+  { id: "designer", name: "渡辺 美咲", emoji: "🎨", default: false },
+  { id: "analyst", name: "山本 悠真", emoji: "📊", default: false },
+  { id: "writer", name: "中村 凛", emoji: "✍️", default: false },
+  { id: "support", name: "小林 蒼", emoji: "🎧", default: false },
+  { id: "hr", name: "加藤 芽依", emoji: "🤝", default: false },
+  { id: "accounting", name: "吉田 樹", emoji: "🧾", default: false },
+  { id: "marketing", name: "山口 紬", emoji: "📣", default: false },
+  { id: "qa", name: "松本 颯太", emoji: "✅", default: false },
+  { id: "legal", name: "井上 楓", emoji: "⚖️", default: false },
+  { id: "product", name: "木村 陽菜", emoji: "💡", default: false },
+  { id: "security", name: "林 大和", emoji: "🛡️", default: false },
+  { id: "operations", name: "清水 莉子", emoji: "🧭", default: false },
+  { id: "data", name: "斎藤 朝陽", emoji: "🗃️", default: false },
+  { id: "community", name: "森 七海", emoji: "💬", default: false },
+] as const;
+
 const MOCK_CHANNELS: ChannelInfo[] = [
   {
     id: "telegram:bot1",
     type: "telegram",
-    name: "MyBot",
+    name: "社内連絡ボット",
     status: "connected",
     accountId: "bot1",
     configured: true,
@@ -44,7 +67,7 @@ const MOCK_CHANNELS: ChannelInfo[] = [
   {
     id: "discord:srv1",
     type: "discord",
-    name: "Dev Server",
+    name: "開発チーム",
     status: "connected",
     accountId: "srv1",
     configured: true,
@@ -71,7 +94,7 @@ const MOCK_CHANNELS: ChannelInfo[] = [
     configured: true,
     linked: false,
     running: false,
-    error: "Session expired",
+    error: "セッションの有効期限が切れました",
   },
 ];
 
@@ -79,8 +102,8 @@ const MOCK_SKILLS: SkillInfo[] = [
   {
     id: "web-search",
     slug: "web-search",
-    name: "Web Search",
-    description: "Search the internet for real-time information",
+    name: "ウェブ検索",
+    description: "インターネットから最新情報を検索します",
     enabled: true,
     icon: "🔍",
     version: "1.0.0",
@@ -97,8 +120,8 @@ const MOCK_SKILLS: SkillInfo[] = [
   {
     id: "code-interpreter",
     slug: "code-interpreter",
-    name: "Code Interpreter",
-    description: "Execute code and return results",
+    name: "コード実行",
+    description: "コードを実行して結果を返します",
     enabled: true,
     icon: "💻",
     version: "1.2.0",
@@ -111,8 +134,8 @@ const MOCK_SKILLS: SkillInfo[] = [
   {
     id: "file-editor",
     slug: "file-editor",
-    name: "File Editor",
-    description: "Read and write local files",
+    name: "ファイル編集",
+    description: "ローカルファイルを読み書きします",
     enabled: true,
     icon: "📝",
     version: "1.0.0",
@@ -125,8 +148,8 @@ const MOCK_SKILLS: SkillInfo[] = [
   {
     id: "image-gen",
     slug: "image-gen",
-    name: "Image Generation",
-    description: "Generate images using AI",
+    name: "画像生成",
+    description: "AIを使って画像を生成します",
     enabled: true,
     icon: "🎨",
     version: "0.9.0",
@@ -140,7 +163,7 @@ const MOCK_SKILLS: SkillInfo[] = [
     id: "playwright",
     slug: "playwright",
     name: "Playwright",
-    description: "Browser automation and testing",
+    description: "ブラウザー操作の自動化とテストを行います",
     enabled: true,
     icon: "🎭",
     version: "1.1.0",
@@ -157,8 +180,8 @@ const MOCK_SKILLS: SkillInfo[] = [
   {
     id: "voice-call",
     slug: "voice-call",
-    name: "Voice Call",
-    description: "Voice call skill",
+    name: "音声通話",
+    description: "音声通話を行うスキルです",
     enabled: false,
     icon: "📞",
     version: "0.5.0",
@@ -172,15 +195,15 @@ const MOCK_SKILLS: SkillInfo[] = [
 const MOCK_CRON_TASKS: CronTask[] = [
   {
     id: "cron-1",
-    name: "Daily Summary",
-    description: "Generate work summary at 6pm every day",
+    name: "日次業務まとめ",
+    description: "毎日18時に業務のまとめを作成します",
     schedule: { kind: "cron", expr: "0 18 * * *" },
     enabled: true,
     createdAtMs: Date.now() - 7 * 86400_000,
     updatedAtMs: Date.now() - 86400_000,
     sessionTarget: "main",
     wakeMode: "now",
-    payload: { kind: "agentTurn", message: "Generate today work summary" },
+    payload: { kind: "agentTurn", message: "本日の業務内容をまとめてください" },
     delivery: { mode: "notify", channel: "telegram", target: "bot1" },
     state: {
       lastRunAtMs: Date.now() - 86400_000,
@@ -190,31 +213,31 @@ const MOCK_CRON_TASKS: CronTask[] = [
   },
   {
     id: "cron-2",
-    name: "Weekly Report Reminder",
-    description: "Send weekly report reminder every Monday at 9am",
+    name: "週報リマインダー",
+    description: "毎週月曜9時に週報の提出を通知します",
     schedule: { kind: "cron", expr: "0 9 * * 1" },
     enabled: false,
     createdAtMs: Date.now() - 14 * 86400_000,
     updatedAtMs: Date.now() - 3 * 86400_000,
     sessionTarget: "isolated",
     wakeMode: "next-heartbeat",
-    payload: { kind: "agentTurn", message: "Please submit this week report" },
+    payload: { kind: "agentTurn", message: "今週の週報を提出してください" },
     state: { lastRunAtMs: Date.now() - 7 * 86400_000, lastRunStatus: "ok" },
   },
   {
     id: "cron-3",
-    name: "Health Check",
+    name: "システム稼働確認",
     schedule: { kind: "every", everyMs: 1800_000 },
     enabled: true,
     createdAtMs: Date.now() - 30 * 86400_000,
     updatedAtMs: Date.now(),
     sessionTarget: "main",
     wakeMode: "now",
-    payload: { kind: "agentTurn", message: "Execute system health check" },
+    payload: { kind: "agentTurn", message: "システムの稼働状況を確認してください" },
     state: {
       lastRunAtMs: Date.now() - 1200_000,
       lastRunStatus: "error",
-      lastError: "Agent timeout",
+      lastError: "AI社員がタイムアウトしました",
       nextRunAtMs: Date.now() + 600_000,
     },
   },
@@ -232,32 +255,185 @@ function mockConfigData(): Record<string, unknown> {
           api: "openai-completions",
           models: [
             // --- NEW models (announced 2026-03-08) ---
-            { id: "gpt-5.4",       name: "GPT-5.4",       reasoning: true,  input: ["text"], contextWindow: 262144, maxTokens: 32768, isNew: true },
-            { id: "grok-4.1-fast", name: "Grok 4.1 Fast", reasoning: true,  input: ["text"], contextWindow: 131072, maxTokens: 16384, isNew: true },
-            { id: "deepseek-v3.2", name: "DeepSeek V3.2", reasoning: false, input: ["text"], contextWindow: 131072, maxTokens: 8192 , isNew: true },
-            { id: "qwen3.5-plus",  name: "Qwen 3.5 Plus",  reasoning: true,  input: ["text"], contextWindow: 131072, maxTokens: 16384, isNew: true },
-            { id: "qwen3.5-flash", name: "Qwen 3.5 Flash", reasoning: false, input: ["text"], contextWindow: 131072, maxTokens: 8192 , isNew: true },
-            { id: "minimax-m2.5",  name: "MiniMax M2.5",   reasoning: false, input: ["text", "image"], contextWindow: 1000000, maxTokens: 16384, isNew: true },
+            {
+              id: "gpt-5.4",
+              name: "GPT-5.4",
+              reasoning: true,
+              input: ["text"],
+              contextWindow: 262144,
+              maxTokens: 32768,
+              isNew: true,
+            },
+            {
+              id: "grok-4.1-fast",
+              name: "Grok 4.1 Fast",
+              reasoning: true,
+              input: ["text"],
+              contextWindow: 131072,
+              maxTokens: 16384,
+              isNew: true,
+            },
+            {
+              id: "deepseek-v3.2",
+              name: "DeepSeek V3.2",
+              reasoning: false,
+              input: ["text"],
+              contextWindow: 131072,
+              maxTokens: 8192,
+              isNew: true,
+            },
+            {
+              id: "qwen3.5-plus",
+              name: "Qwen 3.5 Plus",
+              reasoning: true,
+              input: ["text"],
+              contextWindow: 131072,
+              maxTokens: 16384,
+              isNew: true,
+            },
+            {
+              id: "qwen3.5-flash",
+              name: "Qwen 3.5 Flash",
+              reasoning: false,
+              input: ["text"],
+              contextWindow: 131072,
+              maxTokens: 8192,
+              isNew: true,
+            },
+            {
+              id: "minimax-m2.5",
+              name: "MiniMax M2.5",
+              reasoning: false,
+              input: ["text", "image"],
+              contextWindow: 1000000,
+              maxTokens: 16384,
+              isNew: true,
+            },
             // Anthropic — docs.bankr.bot/llm-gateway/models
-            { id: "claude-opus-4.6",   name: "Claude Opus 4.6",   reasoning: true,  input: ["text", "image"], contextWindow: 200000,  maxTokens: 32768 },
-            { id: "claude-opus-4.5",   name: "Claude Opus 4.5",   reasoning: true,  input: ["text", "image"], contextWindow: 200000,  maxTokens: 32768 },
-            { id: "claude-sonnet-4.6", name: "Claude Sonnet 4.6", reasoning: true,  input: ["text", "image"], contextWindow: 200000,  maxTokens: 16384 },
-            { id: "claude-sonnet-4.5", name: "Claude Sonnet 4.5", reasoning: false, input: ["text", "image"], contextWindow: 200000,  maxTokens: 16384 },
-            { id: "claude-haiku-4.5",  name: "Claude Haiku 4.5",  reasoning: false, input: ["text", "image"], contextWindow: 200000,  maxTokens: 8192  },
+            {
+              id: "claude-opus-4.6",
+              name: "Claude Opus 4.6",
+              reasoning: true,
+              input: ["text", "image"],
+              contextWindow: 200000,
+              maxTokens: 32768,
+            },
+            {
+              id: "claude-opus-4.5",
+              name: "Claude Opus 4.5",
+              reasoning: true,
+              input: ["text", "image"],
+              contextWindow: 200000,
+              maxTokens: 32768,
+            },
+            {
+              id: "claude-sonnet-4.6",
+              name: "Claude Sonnet 4.6",
+              reasoning: true,
+              input: ["text", "image"],
+              contextWindow: 200000,
+              maxTokens: 16384,
+            },
+            {
+              id: "claude-sonnet-4.5",
+              name: "Claude Sonnet 4.5",
+              reasoning: false,
+              input: ["text", "image"],
+              contextWindow: 200000,
+              maxTokens: 16384,
+            },
+            {
+              id: "claude-haiku-4.5",
+              name: "Claude Haiku 4.5",
+              reasoning: false,
+              input: ["text", "image"],
+              contextWindow: 200000,
+              maxTokens: 8192,
+            },
             // Google
-            { id: "gemini-3-pro",   name: "Gemini 3 Pro",   reasoning: true,  input: ["text", "image"], contextWindow: 2097152, maxTokens: 65536 },
-            { id: "gemini-3-flash", name: "Gemini 3 Flash", reasoning: false, input: ["text", "image"], contextWindow: 1048576, maxTokens: 65535 },
-            { id: "gemini-2.5-pro",   name: "Gemini 2.5 Pro",   reasoning: true,  input: ["text", "image"], contextWindow: 1048576, maxTokens: 65536 },
-            { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash", reasoning: false, input: ["text", "image"], contextWindow: 1048576, maxTokens: 65535 },
+            {
+              id: "gemini-3-pro",
+              name: "Gemini 3 Pro",
+              reasoning: true,
+              input: ["text", "image"],
+              contextWindow: 2097152,
+              maxTokens: 65536,
+            },
+            {
+              id: "gemini-3-flash",
+              name: "Gemini 3 Flash",
+              reasoning: false,
+              input: ["text", "image"],
+              contextWindow: 1048576,
+              maxTokens: 65535,
+            },
+            {
+              id: "gemini-2.5-pro",
+              name: "Gemini 2.5 Pro",
+              reasoning: true,
+              input: ["text", "image"],
+              contextWindow: 1048576,
+              maxTokens: 65536,
+            },
+            {
+              id: "gemini-2.5-flash",
+              name: "Gemini 2.5 Flash",
+              reasoning: false,
+              input: ["text", "image"],
+              contextWindow: 1048576,
+              maxTokens: 65535,
+            },
             // OpenAI
-            { id: "gpt-5.2",       name: "GPT-5.2",       reasoning: true,  input: ["text"], contextWindow: 262144, maxTokens: 32768 },
-            { id: "gpt-5.2-codex", name: "GPT-5.2 Codex", reasoning: true,  input: ["text"], contextWindow: 262144, maxTokens: 32768 },
-            { id: "gpt-5-mini",    name: "GPT-5 Mini",    reasoning: false, input: ["text"], contextWindow: 128000, maxTokens: 16384 },
-            { id: "gpt-5-nano",    name: "GPT-5 Nano",    reasoning: false, input: ["text"], contextWindow: 128000, maxTokens: 8192  },
+            {
+              id: "gpt-5.2",
+              name: "GPT-5.2",
+              reasoning: true,
+              input: ["text"],
+              contextWindow: 262144,
+              maxTokens: 32768,
+            },
+            {
+              id: "gpt-5.2-codex",
+              name: "GPT-5.2 Codex",
+              reasoning: true,
+              input: ["text"],
+              contextWindow: 262144,
+              maxTokens: 32768,
+            },
+            {
+              id: "gpt-5-mini",
+              name: "GPT-5 Mini",
+              reasoning: false,
+              input: ["text"],
+              contextWindow: 128000,
+              maxTokens: 16384,
+            },
+            {
+              id: "gpt-5-nano",
+              name: "GPT-5 Nano",
+              reasoning: false,
+              input: ["text"],
+              contextWindow: 128000,
+              maxTokens: 8192,
+            },
             // Kimi (Moonshot AI)
-            { id: "kimi-k2.5", name: "Kimi K2.5", reasoning: true, input: ["text"], contextWindow: 131072, maxTokens: 16384 },
+            {
+              id: "kimi-k2.5",
+              name: "Kimi K2.5",
+              reasoning: true,
+              input: ["text"],
+              contextWindow: 131072,
+              maxTokens: 16384,
+            },
             // Qwen (Alibaba)
-            { id: "qwen3-coder", name: "Qwen3 Coder", reasoning: true, input: ["text"], contextWindow: 131072, maxTokens: 16384 },
+            {
+              id: "qwen3-coder",
+              name: "Qwen3 Coder",
+              reasoning: true,
+              input: ["text"],
+              contextWindow: 131072,
+              maxTokens: 16384,
+            },
           ],
         },
         anthropic: {
@@ -426,45 +602,54 @@ class SubAgentSimulator {
     });
 
     // thinking phase
-    this.schedule(() => {
-      if (!this.running) return;
-      this.emit("agent", {
-        runId,
-        seq: 2,
-        stream: "assistant",
-        ts: Date.now(),
-        data: { text: `Sub-agent ${subId} is analyzing task...` },
-        sessionKey,
-      });
-    }, randRange(1000, 2000));
+    this.schedule(
+      () => {
+        if (!this.running) return;
+        this.emit("agent", {
+          runId,
+          seq: 2,
+          stream: "assistant",
+          ts: Date.now(),
+          data: { text: `サポート担当${this.subCounter}が依頼内容を分析しています…` },
+          sessionKey,
+        });
+      },
+      randRange(1000, 2000),
+    );
 
     // tool calling phase
-    this.schedule(() => {
-      if (!this.running) return;
-      const tools = ["web_search", "code_exec", "file_read", "analyze_data"];
-      const tool = tools[Math.floor(Math.random() * tools.length)];
-      this.emit("agent", {
-        runId,
-        seq: 3,
-        stream: "tool",
-        ts: Date.now(),
-        data: { name: tool, phase: "start" },
-        sessionKey,
-      });
-    }, randRange(3000, 5000));
+    this.schedule(
+      () => {
+        if (!this.running) return;
+        const tools = ["web_search", "code_exec", "file_read", "analyze_data"];
+        const tool = tools[Math.floor(Math.random() * tools.length)];
+        this.emit("agent", {
+          runId,
+          seq: 3,
+          stream: "tool",
+          ts: Date.now(),
+          data: { name: tool, phase: "start" },
+          sessionKey,
+        });
+      },
+      randRange(3000, 5000),
+    );
 
     // speaking phase
-    this.schedule(() => {
-      if (!this.running) return;
-      this.emit("agent", {
-        runId,
-        seq: 4,
-        stream: "assistant",
-        ts: Date.now(),
-        data: { text: `Sub-agent ${subId} has completed task analysis.` },
-        sessionKey,
-      });
-    }, randRange(6000, 9000));
+    this.schedule(
+      () => {
+        if (!this.running) return;
+        this.emit("agent", {
+          runId,
+          seq: 4,
+          stream: "assistant",
+          ts: Date.now(),
+          data: { text: `サポート担当${this.subCounter}が分析を完了しました。` },
+          sessionKey,
+        });
+      },
+      randRange(6000, 9000),
+    );
 
     // lifecycle end
     const endDelay = randRange(8000, 15_000);
@@ -485,7 +670,7 @@ class SubAgentSimulator {
   private scheduleAgentToAgentComm(delayMs: number): void {
     this.schedule(() => {
       if (!this.running) return;
-      const agents = ["main", "coder", "ai-researcher", "ecommerce"];
+      const agents = MOCK_AGENT_IDENTITIES.map((agent) => agent.id);
       const a = agents[Math.floor(Math.random() * agents.length)];
       let b = a;
       while (b === a) b = agents[Math.floor(Math.random() * agents.length)];
@@ -603,14 +788,14 @@ export class MockAdapter implements GatewayAdapter {
       {
         id: "msg-hist-1",
         role: "user",
-        content: "Hello, tell me about ClawProwl",
+        content: "ClawProwlについて教えてください",
         timestamp: Date.now() - 120_000,
       },
       {
         id: "msg-hist-2",
         role: "assistant",
         content:
-          "**ClawProwl** is a multi-agent collaboration system that supports:\n\n- Multi-channel messaging (Telegram, Discord, WhatsApp, etc.)\n- Tool calling and skill extensions\n- Scheduled task management\n- Real-time visual monitoring\n\nYou can observe agent collaboration behavior through ClawProwl.",
+          "**ClawProwl** は、複数のAI社員が協力して働くためのシステムです。\n\n- 複数チャンネルでのメッセージ連携（Telegram、Discord、WhatsAppなど）\n- ツール実行とスキル拡張\n- 定期タスク管理\n- リアルタイムの稼働状況表示\n\nオフィス画面では、AI社員どうしの共同作業を見守れます。",
         timestamp: Date.now() - 110_000,
       },
     ];
@@ -618,7 +803,7 @@ export class MockAdapter implements GatewayAdapter {
 
   async chatSend(params: ChatSendParams): Promise<void> {
     const runId = `mock-run-${Date.now()}`;
-    const responseText = `Message received: "${params.text}"\n\nThis is a simulated response in Mock mode. Once connected to a real Gateway, Agent responses will appear here.`;
+    const responseText = `メッセージを受け取りました：「${params.text}」\n\nこれはモックモードの応答です。実際のGatewayへ接続すると、AI社員からの応答がここに表示されます。`;
 
     // Simulate Gateway chat events: delta → delta → final
     this.scheduleTimer(() => {
@@ -683,7 +868,7 @@ export class MockAdapter implements GatewayAdapter {
       {
         key: "agent:main:main",
         agentId: "agent-main",
-        label: "Default Session",
+        label: "通常業務セッション",
         createdAt: Date.now() - 3600_000,
         lastActiveAt: Date.now(),
         messageCount: 12,
@@ -715,20 +900,20 @@ export class MockAdapter implements GatewayAdapter {
     return {
       qrDataUrl:
         "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
-      message: "Scan QR code with WhatsApp",
+      message: "WhatsAppでQRコードを読み取ってください",
     };
   }
 
   async webLoginWait(): Promise<{ connected: boolean; message: string }> {
     await new Promise((r) => setTimeout(r, 2000));
-    return { connected: true, message: "WhatsApp connected successfully" };
+    return { connected: true, message: "WhatsAppと接続しました" };
   }
 
   async skillsInstall(_name: string, _installId: string): Promise<SkillInstallResult> {
     return {
       ok: true,
-      message: "Mock install completed",
-      stdout: "mock: skill installed successfully",
+      message: "モック環境へのインストールが完了しました",
+      stdout: "モック：スキルをインストールしました",
       code: 0,
     };
   }
@@ -759,7 +944,7 @@ export class MockAdapter implements GatewayAdapter {
 
   async cronUpdate(id: string, patch: Partial<CronTaskInput>): Promise<CronTask> {
     const existing = MOCK_CRON_TASKS.find((t) => t.id === id);
-    if (!existing) throw new Error(`Cron task not found: ${id}`);
+    if (!existing) throw new Error(`定期タスクが見つかりません：${id}`);
     return { ...existing, ...patch, updatedAtMs: Date.now() };
   }
 
@@ -772,16 +957,12 @@ export class MockAdapter implements GatewayAdapter {
       defaultId: "main",
       mainKey: "agent:main:main",
       scope: "global",
-      agents: [
-        { id: "main", name: "PROWL", default: true, identity: { name: "PROWL", emoji: "🐾", avatarUrl: "https://pbs.twimg.com/profile_images/2029487683278708736/JqpyzvWW_400x400.jpg" } },
-        {
-          id: "ai-researcher",
-          name: "0xDeployer",
-          identity: { name: "0xDeployer", emoji: "🚀", avatarUrl: "https://pbs.twimg.com/profile_images/1816688728951476224/PkVN69ln_400x400.jpg" },
-        },
-        { id: "coder", name: "FINN", identity: { name: "FINN", emoji: "⚡", avatarUrl: "https://pbs.twimg.com/profile_images/2003998762503745536/jDpf21Ig_400x400.jpg" } },
-        { id: "ecommerce", name: "BANKR", identity: { name: "BANKR", emoji: "🏦", avatarUrl: "https://pbs.twimg.com/profile_images/1951545493936545792/AriqgxQN_400x400.jpg" } },
-      ],
+      agents: MOCK_AGENT_IDENTITIES.map((agent) => ({
+        id: agent.id,
+        name: agent.name,
+        default: agent.default,
+        identity: { name: agent.name, emoji: agent.emoji },
+      })),
     };
   }
 
@@ -824,7 +1005,7 @@ export class MockAdapter implements GatewayAdapter {
       workspace: `~/.clawprowl/workspace`,
       file: {
         name,
-        content: `# ${name}\n\nMock content for ${name}`,
+        content: `# ${name}\n\n${name} のモック内容です。`,
         size: 128,
         modifiedAt: new Date().toISOString(),
       },
@@ -847,8 +1028,8 @@ export class MockAdapter implements GatewayAdapter {
   async toolsCatalog(): Promise<ToolCatalog> {
     return {
       tools: [
-        { name: "web_search", description: "Search internet" },
-        { name: "code_exec", description: "Execute code" },
+        { name: "web_search", description: "インターネットを検索" },
+        { name: "code_exec", description: "コードを実行" },
       ],
     };
   }
@@ -862,8 +1043,8 @@ export class MockAdapter implements GatewayAdapter {
           displayName: "Bankr LLM Gateway",
           plan: "credits",
           windows: [
-            { label: "daily", usedPercent: 30, resetAt: Date.now() + 12 * 3600_000 },
-            { label: "monthly", usedPercent: 15 },
+            { label: "日次", usedPercent: 30, resetAt: Date.now() + 12 * 3600_000 },
+            { label: "月次", usedPercent: 15 },
           ],
         },
         {
@@ -871,15 +1052,15 @@ export class MockAdapter implements GatewayAdapter {
           displayName: "Anthropic",
           plan: "pro",
           windows: [
-            { label: "daily", usedPercent: 45, resetAt: Date.now() + 12 * 3600_000 },
-            { label: "monthly", usedPercent: 22 },
+            { label: "日次", usedPercent: 45, resetAt: Date.now() + 12 * 3600_000 },
+            { label: "月次", usedPercent: 22 },
           ],
         },
         {
           provider: "openai",
           displayName: "OpenAI",
           plan: "tier-3",
-          windows: [{ label: "daily", usedPercent: 12 }],
+          windows: [{ label: "日次", usedPercent: 12 }],
         },
       ],
     };
@@ -889,32 +1070,185 @@ export class MockAdapter implements GatewayAdapter {
     // Mirrors mockConfigData() bankr models — docs.bankr.bot/llm-gateway/models + 2026-03-08 additions
     return [
       // NEW — 2026-03-08
-      { id: "gpt-5.4",            name: "GPT-5.4",           provider: "bankr", reasoning: true,  input: ["text"], contextWindow: 262144, isNew: true },
-      { id: "grok-4.1-fast",      name: "Grok 4.1 Fast",     provider: "bankr", reasoning: true,  input: ["text"], contextWindow: 131072, isNew: true },
-      { id: "deepseek-v3.2",      name: "DeepSeek V3.2",     provider: "bankr", reasoning: false, input: ["text"], contextWindow: 131072, isNew: true },
-      { id: "qwen3.5-plus",       name: "Qwen 3.5 Plus",     provider: "bankr", reasoning: true,  input: ["text"], contextWindow: 131072, isNew: true },
-      { id: "qwen3.5-flash",      name: "Qwen 3.5 Flash",    provider: "bankr", reasoning: false, input: ["text"], contextWindow: 131072, isNew: true },
-      { id: "minimax-m2.5",       name: "MiniMax M2.5",      provider: "bankr", reasoning: false, input: ["text", "image"], contextWindow: 1000000, isNew: true },
+      {
+        id: "gpt-5.4",
+        name: "GPT-5.4",
+        provider: "bankr",
+        reasoning: true,
+        input: ["text"],
+        contextWindow: 262144,
+        isNew: true,
+      },
+      {
+        id: "grok-4.1-fast",
+        name: "Grok 4.1 Fast",
+        provider: "bankr",
+        reasoning: true,
+        input: ["text"],
+        contextWindow: 131072,
+        isNew: true,
+      },
+      {
+        id: "deepseek-v3.2",
+        name: "DeepSeek V3.2",
+        provider: "bankr",
+        reasoning: false,
+        input: ["text"],
+        contextWindow: 131072,
+        isNew: true,
+      },
+      {
+        id: "qwen3.5-plus",
+        name: "Qwen 3.5 Plus",
+        provider: "bankr",
+        reasoning: true,
+        input: ["text"],
+        contextWindow: 131072,
+        isNew: true,
+      },
+      {
+        id: "qwen3.5-flash",
+        name: "Qwen 3.5 Flash",
+        provider: "bankr",
+        reasoning: false,
+        input: ["text"],
+        contextWindow: 131072,
+        isNew: true,
+      },
+      {
+        id: "minimax-m2.5",
+        name: "MiniMax M2.5",
+        provider: "bankr",
+        reasoning: false,
+        input: ["text", "image"],
+        contextWindow: 1000000,
+        isNew: true,
+      },
       // Anthropic
-      { id: "claude-opus-4.6",    name: "Claude Opus 4.6",   provider: "bankr", reasoning: true,  input: ["text", "image"], contextWindow: 200000  },
-      { id: "claude-opus-4.5",    name: "Claude Opus 4.5",   provider: "bankr", reasoning: true,  input: ["text", "image"], contextWindow: 200000  },
-      { id: "claude-sonnet-4.6",  name: "Claude Sonnet 4.6", provider: "bankr", reasoning: true,  input: ["text", "image"], contextWindow: 200000  },
-      { id: "claude-sonnet-4.5",  name: "Claude Sonnet 4.5", provider: "bankr", reasoning: false, input: ["text", "image"], contextWindow: 200000  },
-      { id: "claude-haiku-4.5",   name: "Claude Haiku 4.5",  provider: "bankr", reasoning: false, input: ["text", "image"], contextWindow: 200000  },
+      {
+        id: "claude-opus-4.6",
+        name: "Claude Opus 4.6",
+        provider: "bankr",
+        reasoning: true,
+        input: ["text", "image"],
+        contextWindow: 200000,
+      },
+      {
+        id: "claude-opus-4.5",
+        name: "Claude Opus 4.5",
+        provider: "bankr",
+        reasoning: true,
+        input: ["text", "image"],
+        contextWindow: 200000,
+      },
+      {
+        id: "claude-sonnet-4.6",
+        name: "Claude Sonnet 4.6",
+        provider: "bankr",
+        reasoning: true,
+        input: ["text", "image"],
+        contextWindow: 200000,
+      },
+      {
+        id: "claude-sonnet-4.5",
+        name: "Claude Sonnet 4.5",
+        provider: "bankr",
+        reasoning: false,
+        input: ["text", "image"],
+        contextWindow: 200000,
+      },
+      {
+        id: "claude-haiku-4.5",
+        name: "Claude Haiku 4.5",
+        provider: "bankr",
+        reasoning: false,
+        input: ["text", "image"],
+        contextWindow: 200000,
+      },
       // Google
-      { id: "gemini-3-pro",       name: "Gemini 3 Pro",      provider: "bankr", reasoning: true,  input: ["text", "image"], contextWindow: 2097152 },
-      { id: "gemini-3-flash",     name: "Gemini 3 Flash",    provider: "bankr", reasoning: false, input: ["text", "image"], contextWindow: 1048576 },
-      { id: "gemini-2.5-pro",     name: "Gemini 2.5 Pro",    provider: "bankr", reasoning: true,  input: ["text", "image"], contextWindow: 1048576 },
-      { id: "gemini-2.5-flash",   name: "Gemini 2.5 Flash",  provider: "bankr", reasoning: false, input: ["text", "image"], contextWindow: 1048576 },
+      {
+        id: "gemini-3-pro",
+        name: "Gemini 3 Pro",
+        provider: "bankr",
+        reasoning: true,
+        input: ["text", "image"],
+        contextWindow: 2097152,
+      },
+      {
+        id: "gemini-3-flash",
+        name: "Gemini 3 Flash",
+        provider: "bankr",
+        reasoning: false,
+        input: ["text", "image"],
+        contextWindow: 1048576,
+      },
+      {
+        id: "gemini-2.5-pro",
+        name: "Gemini 2.5 Pro",
+        provider: "bankr",
+        reasoning: true,
+        input: ["text", "image"],
+        contextWindow: 1048576,
+      },
+      {
+        id: "gemini-2.5-flash",
+        name: "Gemini 2.5 Flash",
+        provider: "bankr",
+        reasoning: false,
+        input: ["text", "image"],
+        contextWindow: 1048576,
+      },
       // OpenAI
-      { id: "gpt-5.2",            name: "GPT-5.2",           provider: "bankr", reasoning: true,  input: ["text"], contextWindow: 262144 },
-      { id: "gpt-5.2-codex",      name: "GPT-5.2 Codex",     provider: "bankr", reasoning: true,  input: ["text"], contextWindow: 262144 },
-      { id: "gpt-5-mini",         name: "GPT-5 Mini",        provider: "bankr", reasoning: false, input: ["text"], contextWindow: 128000 },
-      { id: "gpt-5-nano",         name: "GPT-5 Nano",        provider: "bankr", reasoning: false, input: ["text"], contextWindow: 128000 },
+      {
+        id: "gpt-5.2",
+        name: "GPT-5.2",
+        provider: "bankr",
+        reasoning: true,
+        input: ["text"],
+        contextWindow: 262144,
+      },
+      {
+        id: "gpt-5.2-codex",
+        name: "GPT-5.2 Codex",
+        provider: "bankr",
+        reasoning: true,
+        input: ["text"],
+        contextWindow: 262144,
+      },
+      {
+        id: "gpt-5-mini",
+        name: "GPT-5 Mini",
+        provider: "bankr",
+        reasoning: false,
+        input: ["text"],
+        contextWindow: 128000,
+      },
+      {
+        id: "gpt-5-nano",
+        name: "GPT-5 Nano",
+        provider: "bankr",
+        reasoning: false,
+        input: ["text"],
+        contextWindow: 128000,
+      },
       // Kimi
-      { id: "kimi-k2.5",          name: "Kimi K2.5",         provider: "bankr", reasoning: true,  input: ["text"], contextWindow: 131072 },
+      {
+        id: "kimi-k2.5",
+        name: "Kimi K2.5",
+        provider: "bankr",
+        reasoning: true,
+        input: ["text"],
+        contextWindow: 131072,
+      },
       // Qwen
-      { id: "qwen3-coder",        name: "Qwen3 Coder",       provider: "bankr", reasoning: true,  input: ["text"], contextWindow: 131072 },
+      {
+        id: "qwen3-coder",
+        name: "Qwen3 Coder",
+        provider: "bankr",
+        reasoning: true,
+        input: ["text"],
+        contextWindow: 131072,
+      },
     ];
   }
 

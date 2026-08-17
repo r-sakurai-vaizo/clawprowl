@@ -115,7 +115,13 @@ export const AgentAvatar = memo(function AgentAvatar({ agent }: AgentAvatarProps
       )}
 
       {/* Status ring with animation */}
-      <StatusRing status={agent.status} r={r} color={color} isWalking={isWalking} isPlaceholder={isPlaceholder} />
+      <StatusRing
+        status={agent.status}
+        r={r}
+        color={color}
+        isWalking={isWalking}
+        isPlaceholder={isPlaceholder}
+      />
 
       {/* Avatar face */}
       <defs>
@@ -144,7 +150,7 @@ export const AgentAvatar = memo(function AgentAvatar({ agent }: AgentAvatarProps
         <g transform={`translate(${r * 0.6}, ${r * 0.5})`}>
           <circle r={7} fill={isDark ? "#1e293b" : "#fff"} stroke={color} strokeWidth={1.2} />
           <text textAnchor="middle" dy="3.5" fontSize="9" fill={color} fontWeight="bold">
-            S
+            補
           </text>
         </g>
       )}
@@ -352,6 +358,7 @@ function AvatarFace({ data, size }: { data: SvgAvatarData; size: number }) {
 
   return (
     <g>
+      <rect x={-s} y={-s} width={size} height={size} fill={data.backgroundColor} />
       {/* Shirt/body (lower half) */}
       <rect x={-s} y={s * 0.4} width={size} height={s * 1.2} fill={data.shirtColor} />
 
@@ -363,6 +370,16 @@ function AvatarFace({ data, size }: { data: SvgAvatarData; size: number }) {
 
       {/* Eyes */}
       <EyesSvg style={data.eyeStyle} s={s} />
+      <circle cx={-s * 0.48} cy={s * 0.18} r={s * 0.13} fill="#f59cab" opacity={0.3} />
+      <circle cx={s * 0.48} cy={s * 0.18} r={s * 0.13} fill="#f59cab" opacity={0.3} />
+      <path
+        d={`M ${-s * 0.12} ${s * 0.28} Q 0 ${s * 0.42} ${s * 0.12} ${s * 0.28}`}
+        fill="none"
+        stroke="#8f4a52"
+        strokeWidth={1}
+        strokeLinecap="round"
+      />
+      <AccessorySvg style={data.accessoryStyle} s={s} />
     </g>
   );
 }
@@ -394,7 +411,7 @@ function HairSvg({
           ))}
         </g>
       );
-    case "side-part":
+    case "bob":
       return (
         <g>
           <ellipse cx={-s * 0.1} cy={-s * 0.55} rx={faceRx} ry={s * 0.45} fill={color} />
@@ -408,7 +425,7 @@ function HairSvg({
           />
         </g>
       );
-    case "curly":
+    case "hime":
       return (
         <g>
           {[
@@ -422,7 +439,7 @@ function HairSvg({
           ))}
         </g>
       );
-    case "buzz":
+    case "side-tail":
       return (
         <ellipse
           cx={0}
@@ -442,14 +459,14 @@ function EyesSvg({ style, s }: { style: SvgAvatarData["eyeStyle"]; s: number }) 
   const ey = -s * 0.08;
   const gap = s * 0.28;
   switch (style) {
-    case "dot":
+    case "sparkle":
       return (
         <g>
           <circle cx={-gap} cy={ey} r={2} fill="#333" />
           <circle cx={gap} cy={ey} r={2} fill="#333" />
         </g>
       );
-    case "line":
+    case "soft":
       return (
         <g>
           <line
@@ -472,7 +489,7 @@ function EyesSvg({ style, s }: { style: SvgAvatarData["eyeStyle"]; s: number }) 
           />
         </g>
       );
-    case "wide":
+    case "smile":
       return (
         <g>
           <ellipse cx={-gap} cy={ey} rx={3} ry={2.5} fill="#fff" stroke="#333" strokeWidth={0.8} />
@@ -480,6 +497,47 @@ function EyesSvg({ style, s }: { style: SvgAvatarData["eyeStyle"]; s: number }) 
           <ellipse cx={gap} cy={ey} rx={3} ry={2.5} fill="#fff" stroke="#333" strokeWidth={0.8} />
           <circle cx={gap} cy={ey} r={1.2} fill="#333" />
         </g>
+      );
+    default:
+      return null;
+  }
+}
+
+function AccessorySvg({ style, s }: { style: SvgAvatarData["accessoryStyle"]; s: number }) {
+  switch (style) {
+    case "ribbon":
+      return (
+        <path
+          d={`M ${s * 0.45} ${-s * 0.72} l ${s * 0.4} ${-s * 0.2} l ${-s * 0.08} ${s * 0.38} l ${s * 0.35} ${s * 0.2} l ${-s * 0.5} ${s * 0.12} z`}
+          fill="#ef6f9f"
+        />
+      );
+    case "hairpin":
+      return (
+        <path
+          d={`M ${s * 0.3} ${-s * 0.75} l ${s * 0.35} ${s * 0.28} M ${s * 0.42} ${-s * 0.86} l ${s * 0.34} ${s * 0.27}`}
+          stroke="#f8c84a"
+          strokeWidth={1.4}
+          strokeLinecap="round"
+        />
+      );
+    case "headband":
+      return (
+        <path
+          d={`M ${-s * 0.7} ${-s * 0.55} Q 0 ${-s * 1.05} ${s * 0.72} ${-s * 0.52}`}
+          fill="none"
+          stroke="#ef6f9f"
+          strokeWidth={2}
+        />
+      );
+    case "glasses":
+      return (
+        <path
+          d={`M ${-s * 0.58} ${-s * 0.2} h ${s * 0.48} v ${s * 0.3} h ${-s * 0.4} z M ${s * 0.1} ${-s * 0.2} h ${s * 0.48} v ${s * 0.3} h ${-s * 0.4} z M ${-s * 0.1} ${-s * 0.12} h ${s * 0.2}`}
+          fill="none"
+          stroke="#3f3f55"
+          strokeWidth={1}
+        />
       );
     default:
       return null;

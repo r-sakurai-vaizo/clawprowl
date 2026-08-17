@@ -1,0 +1,10 @@
+{
+  "loading3D": "3Dオフィスを読み込んでいます…",
+  "entrance": "エントランス",
+  "zones": {
+    "desk": "執務エリア",
+    "meeting": "会議室",
+    "hotDesk": "フリーデスク",
+    "lounge": "ラウンジ"
+  }
+}

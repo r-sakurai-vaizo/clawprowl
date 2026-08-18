@@ -99,6 +99,8 @@ describe("MockAdapter", () => {
     vi.spyOn(Math, "random").mockReturnValue(0.5);
     const mainAgentIds = new Set<string>();
     const subAgentNames: string[] = [];
+    const collaborationStartedAt = new Map<string, number>();
+    const collaborationDurations: number[] = [];
 
     adapter.onEvent((event, payload) => {
       if (event !== "agent" || typeof payload !== "object" || payload === null) return;
@@ -112,14 +114,38 @@ describe("MockAdapter", () => {
       } else if (typeof agentEvent.data.agentId === "string") {
         mainAgentIds.add(agentEvent.data.agentId);
       }
+      const sessionKey = (payload as { sessionKey?: string }).sessionKey;
+      if (sessionKey?.startsWith("共同作業-") && !collaborationStartedAt.has(sessionKey)) {
+        collaborationStartedAt.set(sessionKey, Date.now());
+      }
+    });
+
+    adapter.onEvent((event, payload) => {
+      if (event !== "agent" || typeof payload !== "object" || payload === null) return;
+      const agentEvent = payload as {
+        stream?: string;
+        sessionKey?: string;
+        data?: Record<string, unknown>;
+      };
+      if (
+        agentEvent.stream === "lifecycle" &&
+        agentEvent.data?.phase === "end" &&
+        agentEvent.sessionKey?.startsWith("共同作業-")
+      ) {
+        const startedAt = collaborationStartedAt.get(agentEvent.sessionKey);
+        if (startedAt !== undefined && !collaborationDurations.length) {
+          collaborationDurations.push(Date.now() - startedAt);
+        }
+      }
     });
 
     await adapter.connect();
-    await vi.advanceTimersByTimeAsync(30_000);
+    await vi.advanceTimersByTimeAsync(50_000);
 
     expect(mainAgentIds.size).toBe(20);
     expect(subAgentNames.length).toBeGreaterThan(0);
     expect(subAgentNames[0]).toBe("月城ひかり");
     expect(subAgentNames[0]).not.toContain("mock-sub");
+    expect(collaborationDurations[0]).toBeGreaterThanOrEqual(16_000);
   });
 });

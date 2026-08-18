@@ -740,7 +740,8 @@ class SubAgentSimulator {
         randRange(2500, 3500),
       );
 
-      const commDuration = randRange(7500, 10_000);
+      // 移動に数秒かかるため、到着後も約10秒以上は会議室で作業できる長さにする。
+      const commDuration = randRange(16_000, 20_000);
       this.schedule(() => {
         if (!this.running) return;
         group.forEach((agent, index) => {
@@ -755,7 +756,7 @@ class SubAgentSimulator {
         });
       }, commDuration);
 
-      this.scheduleOfficeActivity(randRange(2500, 3500));
+      this.scheduleOfficeActivity(randRange(5000, 6500));
     }, delayMs);
   }
 }

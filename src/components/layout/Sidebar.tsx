@@ -182,6 +182,14 @@ export function Sidebar() {
                     · {timeAgo(t, agent.lastActiveAt)}
                   </span>
                 </div>
+                {agent.currentTask && (
+                  <div
+                    className="mt-0.5 truncate text-[10px] text-violet-500 dark:text-violet-300"
+                    title={agent.currentTask.title}
+                  >
+                    ▸ {agent.currentTask.title}
+                  </div>
+                )}
               </div>
             </button>
           ))}

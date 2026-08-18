@@ -1,5 +1,22 @@
 {
   "loading3D": "Loading 3D scene...",
+  "entrance": "Entrance",
+  "workInput": {
+    "title": "Assign work to AI staff",
+    "summary": "{{count}} tasks in progress",
+    "taskLabel": "Tasks (one per line, up to 8)",
+    "placeholder": "Example: Compare pricing from three competitors\nExample: Draft three product descriptions",
+    "assignee": "Assignee",
+    "autoAssign": "Auto-assign to available staff",
+    "assign": "Assign {{count}}",
+    "currentWork": "Current work",
+    "clickToComplete": "Complete with ✓",
+    "complete": "Mark complete",
+    "status": {
+      "working": "Working",
+      "done": "Done"
+    }
+  },
   "zones": {
     "desk": "Desk Zone",
     "meeting": "Meeting Zone",

@@ -94,7 +94,7 @@ describe("MockAdapter", () => {
     expect(messages[0]).toHaveProperty("content");
   });
 
-  it("全20名を順番に共同作業へ参加させ、サブエージェントへ固有名を付ける", async () => {
+  it("同時に動く社員を絞り、サブエージェントへ固有名を付ける", async () => {
     vi.useFakeTimers();
     vi.spyOn(Math, "random").mockReturnValue(0.5);
     const mainAgentIds = new Set<string>();
@@ -142,7 +142,8 @@ describe("MockAdapter", () => {
     await adapter.connect();
     await vi.advanceTimersByTimeAsync(50_000);
 
-    expect(mainAgentIds.size).toBe(20);
+    expect(mainAgentIds.size).toBe(8);
+    expect(mainAgentIds.size).toBeLessThan(20);
     expect(subAgentNames.length).toBeGreaterThan(0);
     expect(subAgentNames[0]).toBe("月城ひかり");
     expect(subAgentNames[0]).not.toContain("mock-sub");

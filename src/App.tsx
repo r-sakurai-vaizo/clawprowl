@@ -4,6 +4,7 @@ import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AppShell } from "@/components/layout/AppShell";
 import { ConsoleLayout } from "@/components/layout/ConsoleLayout";
 import { FloorPlan } from "@/components/office-2d/FloorPlan";
+import { WorkInputPanel } from "@/components/office/WorkInputPanel";
 import { AgentsPage } from "@/components/pages/AgentsPage";
 import { ChannelsPage } from "@/components/pages/ChannelsPage";
 import { CronPage } from "@/components/pages/CronPage";
@@ -47,7 +48,7 @@ function OfficeView() {
 
   return (
     <div
-      className="h-full w-full transition-opacity duration-300"
+      className="relative h-full w-full transition-opacity duration-300"
       style={{ opacity: fading ? 0 : 1 }}
     >
       {displayMode === "2d" ? (
@@ -57,6 +58,7 @@ function OfficeView() {
           <Scene3D />
         </Suspense>
       )}
+      <WorkInputPanel />
     </div>
   );
 }

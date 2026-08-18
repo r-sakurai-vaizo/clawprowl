@@ -63,6 +63,23 @@ describe("AgentAvatar", () => {
     expect(fos.length).toBeGreaterThanOrEqual(1);
   });
 
+  it("shows the concrete task under the agent name", () => {
+    const { getByText } = renderAvatar({
+      ...mockAgent,
+      currentTask: {
+        id: "work-1",
+        title: "競合サービスの料金調査",
+        assigneeId: "a1",
+        assigneeName: "TestBot",
+        createdAt: Date.now(),
+        source: "user",
+        status: "working",
+      },
+    });
+
+    expect(getByText("▸ 競合サービスの料金調査")).toBeTruthy();
+  });
+
   it("clicking triggers selectAgent", () => {
     const { container } = renderAvatar();
     const g = container.querySelector("g");

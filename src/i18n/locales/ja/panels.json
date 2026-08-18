@@ -14,6 +14,7 @@
   },
   "agentDetail": {
     "deselect": "選択を解除",
+    "currentTask": "現在取り組んでいる仕事",
     "toolCallHistory": "ツール実行履歴"
   },
   "eventTimeline": {

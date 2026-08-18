@@ -38,6 +38,11 @@ export const AgentAvatar = memo(function AgentAvatar({ agent }: AgentAvatarProps
     agent.name.length > AVATAR.nameLabelMaxChars
       ? `${agent.name.slice(0, AVATAR.nameLabelMaxChars)}…`
       : agent.name;
+  const displayTask = agent.currentTask
+    ? agent.currentTask.title.length > 18
+      ? `${agent.currentTask.title.slice(0, 18)}…`
+      : agent.currentTask.title
+    : null;
 
   // Walk animation loop via requestAnimationFrame
   const agentIdRef = useRef(agent.id);
@@ -208,10 +213,10 @@ export const AgentAvatar = memo(function AgentAvatar({ agent }: AgentAvatarProps
 
       {/* Name label */}
       <foreignObject
-        x={-60}
+        x={-90}
         y={r + (agent.status === "tool_calling" && agent.currentTool ? 18 : 4)}
-        width={120}
-        height={22}
+        width={180}
+        height={displayTask ? 40 : 22}
         style={{ pointerEvents: "none" }}
       >
         <div
@@ -221,7 +226,7 @@ export const AgentAvatar = memo(function AgentAvatar({ agent }: AgentAvatarProps
           }}
         >
           <span
-            title={agent.name}
+            title={displayTask ? `${agent.name}：${agent.currentTask?.title}` : agent.name}
             style={{
               fontSize: "11px",
               fontWeight: 500,
@@ -229,12 +234,27 @@ export const AgentAvatar = memo(function AgentAvatar({ agent }: AgentAvatarProps
               backgroundColor: isDark ? "rgba(30,41,59,0.7)" : "rgba(255,255,255,0.75)",
               backdropFilter: "blur(6px)",
               borderRadius: "6px",
-              padding: "1px 8px",
+              padding: displayTask ? "2px 8px" : "1px 8px",
               whiteSpace: "nowrap",
               border: `1px solid ${isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"}`,
             }}
           >
-            {displayName}
+            <span style={{ display: "block", textAlign: "center" }}>{displayName}</span>
+            {displayTask && (
+              <span
+                style={{
+                  display: "block",
+                  maxWidth: "164px",
+                  overflow: "hidden",
+                  color: isDark ? "#c4b5fd" : "#7c3aed",
+                  fontSize: "9px",
+                  fontWeight: 600,
+                  textOverflow: "ellipsis",
+                }}
+              >
+                ▸ {displayTask}
+              </span>
+            )}
           </span>
         </div>
       </foreignObject>

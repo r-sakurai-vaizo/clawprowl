@@ -33,6 +33,7 @@ import {
 import { applyEventToAgent } from "./agent-reducer";
 import { applyMeetingGathering, detectMeetingGroups } from "./meeting-manager";
 import { getSubAgentName, getSubAgentProfile } from "@/lib/subagent-profiles";
+import { getDemoWorkTitle } from "@/lib/demo-work-tasks";
 import { computeMetrics } from "./metrics-reducer";
 
 const EVENT_HISTORY_LIMIT = 200;
@@ -139,6 +140,7 @@ function createVisualAgent(
     movement: null,
     confirmed: true,
     avatarUrl,
+    currentTask: null,
   };
 }
 
@@ -239,6 +241,7 @@ export const useOfficeStore = create<OfficeStore>()(
     agentCosts: {} as Record<string, number>,
     currentPage: "office" as PageId,
     chatDockHeight: getInitialChatDockHeight(),
+    workTasks: [],
     maxSubAgents: 3,
     agentToAgentConfig: { enabled: false, allow: [] } as AgentToAgentConfig,
     runIdMap: new Map(),
@@ -258,6 +261,68 @@ export const useOfficeStore = create<OfficeStore>()(
           Object.assign(agent, patch);
           state.globalMetrics = computeMetrics(state.agents, state.globalMetrics);
         }
+      });
+    },
+
+    assignWorkTasks: (titles: string[], agentId?: string) => {
+      set((state) => {
+        const candidates = Array.from(state.agents.values()).filter(
+          (agent) => !agent.isSubAgent && !agent.isPlaceholder && agent.confirmed,
+        );
+        if (candidates.length === 0) return;
+
+        const cleanedTitles = titles
+          .map((title) => title.trim())
+          .filter(Boolean)
+          .slice(0, 8);
+        const autoOffset = state.workTasks.filter((task) => task.source === "user").length;
+
+        cleanedTitles.forEach((title, index) => {
+          const assignee = agentId
+            ? candidates.find((agent) => agent.id === agentId)
+            : candidates[(autoOffset + index) % candidates.length];
+          if (!assignee) return;
+
+          const task = {
+            id: `work-${Date.now()}-${index}-${assignee.id}`,
+            title,
+            assigneeId: assignee.id,
+            assigneeName: assignee.name,
+            createdAt: Date.now() + index,
+            source: "user" as const,
+            status: "working" as const,
+          };
+          assignee.currentTask = task;
+          assignee.status = "thinking";
+          assignee.lastActiveAt = Date.now();
+          assignee.speechBubble = {
+            text: `「${title}」に取り組んでいます。`,
+            timestamp: Date.now(),
+          };
+          state.workTasks.unshift(task);
+        });
+
+        state.workTasks = state.workTasks.slice(0, 60);
+        state.globalMetrics = computeMetrics(state.agents, state.globalMetrics);
+      });
+    },
+
+    completeWorkTask: (taskId: string) => {
+      set((state) => {
+        const task = state.workTasks.find((item) => item.id === taskId);
+        if (!task) return;
+        task.status = "done";
+
+        const assignee = state.agents.get(task.assigneeId);
+        if (assignee?.currentTask?.id === taskId) {
+          assignee.currentTask = null;
+          assignee.status = "idle";
+          assignee.speechBubble = {
+            text: `「${task.title}」が完了しました。`,
+            timestamp: Date.now(),
+          };
+        }
+        state.globalMetrics = computeMetrics(state.agents, state.globalMetrics);
       });
     },
 
@@ -595,6 +660,7 @@ export const useOfficeStore = create<OfficeStore>()(
     initAgents: (summaries: AgentSummary[]) => {
       set((state) => {
         state.agents.clear();
+        state.workTasks = [];
         state.runIdMap.clear();
         state.sessionKeyMap.clear();
 
@@ -604,6 +670,20 @@ export const useOfficeStore = create<OfficeStore>()(
           const avatarUrl =
             summary.identity?.avatarUrl ?? (summary.identity as { avatar?: string })?.avatar;
           const agent = createVisualAgent(summary.id, name, false, occupied, true, avatarUrl);
+          const demoTitle = getDemoWorkTitle(summary.id);
+          if (demoTitle) {
+            const task = {
+              id: `demo-work-${summary.id}`,
+              title: demoTitle,
+              assigneeId: summary.id,
+              assigneeName: name,
+              createdAt: Date.now(),
+              source: "demo" as const,
+              status: "working" as const,
+            };
+            agent.currentTask = task;
+            state.workTasks.push(task);
+          }
           occupied.add(positionKey(agent.position));
           state.agents.set(summary.id, agent);
         }

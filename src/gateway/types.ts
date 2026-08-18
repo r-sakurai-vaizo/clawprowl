@@ -134,6 +134,18 @@ export interface MovementState {
   toZone: AgentZone;
 }
 
+export type WorkTaskStatus = "working" | "done";
+
+export interface WorkTask {
+  id: string;
+  title: string;
+  assigneeId: string;
+  assigneeName: string;
+  createdAt: number;
+  source: "demo" | "user";
+  status: WorkTaskStatus;
+}
+
 export interface VisualAgent {
   id: string;
   name: string;
@@ -154,6 +166,7 @@ export interface VisualAgent {
   movement: MovementState | null;
   confirmed: boolean;
   avatarUrl?: string;
+  currentTask?: WorkTask | null;
 }
 
 export interface ToolCallRecord {
@@ -256,6 +269,7 @@ export interface OfficeStore {
   agentCosts: Record<string, number>;
   currentPage: PageId;
   chatDockHeight: number;
+  workTasks: WorkTask[];
 
   // Config awareness
   maxSubAgents: number;
@@ -271,6 +285,8 @@ export interface OfficeStore {
   updateAgent: (id: string, patch: Partial<VisualAgent>) => void;
   removeAgent: (id: string) => void;
   initAgents: (agents: AgentSummary[]) => void;
+  assignWorkTasks: (titles: string[], agentId?: string) => void;
+  completeWorkTask: (taskId: string) => void;
 
   // Sub-Agent management
   addSubAgent: (parentId: string, info: SubAgentInfo) => void;

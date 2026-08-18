@@ -686,7 +686,8 @@ class SubAgentSimulator {
     this.schedule(() => {
       if (!this.running) return;
       this.activityCounter++;
-      const groupSize = 3;
+      // 画面が落ち着いて見えるよう、同時に移動・会議する社員は2人に絞る。
+      const groupSize = 2;
       const group = Array.from({ length: groupSize }, (_, offset) => {
         const index = (this.activityCursor + offset) % MOCK_AGENT_IDENTITIES.length;
         return MOCK_AGENT_IDENTITIES[index];
@@ -756,7 +757,7 @@ class SubAgentSimulator {
         });
       }, commDuration);
 
-      this.scheduleOfficeActivity(randRange(5000, 6500));
+      this.scheduleOfficeActivity(randRange(12_000, 15_000));
     }, delayMs);
   }
 }

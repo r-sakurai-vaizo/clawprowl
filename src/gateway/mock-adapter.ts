@@ -28,6 +28,7 @@ import type {
   UsageInfo,
 } from "./adapter-types";
 import type { AgentsListResponse } from "./types";
+import { getSubAgentProfile } from "@/lib/subagent-profiles";
 
 const MOCK_AGENT_IDENTITIES = [
   { id: "main", name: "桜井さくら", emoji: "🌸", default: true },
@@ -506,7 +507,10 @@ function mockConfigData(): Record<string, unknown> {
       },
     },
     tools: {
-      agentToAgent: { enabled: true, allow: ["main", "coder", "ai-researcher", "ecommerce"] },
+      agentToAgent: {
+        enabled: true,
+        allow: MOCK_AGENT_IDENTITIES.map((agent) => agent.id),
+      },
     },
     update: { channel: "stable" },
     gateway: { auth: { token: REDACTED } },
@@ -547,6 +551,8 @@ class SubAgentSimulator {
   private timers: ReturnType<typeof setTimeout>[] = [];
   private activeSubAgents = new Set<string>();
   private subCounter = 0;
+  private activityCounter = 0;
+  private activityCursor = 0;
   private running = false;
 
   constructor(
@@ -557,8 +563,8 @@ class SubAgentSimulator {
   start(): void {
     if (this.running) return;
     this.running = true;
-    this.scheduleNextSpawn(5000);
-    this.scheduleAgentToAgentComm(20_000);
+    this.scheduleNextSpawn(2500);
+    this.scheduleOfficeActivity(1200);
   }
 
   stop(): void {
@@ -579,15 +585,17 @@ class SubAgentSimulator {
       if (this.activeSubAgents.size < this.maxConcurrent) {
         this.spawnSubAgent();
       }
-      this.scheduleNextSpawn(randRange(15000, 30000));
+      this.scheduleNextSpawn(randRange(9000, 14000));
     }, delayMs);
   }
 
   private spawnSubAgent(): void {
     this.subCounter++;
+    const profile = getSubAgentProfile(this.subCounter - 1);
     const subId = `mock-sub-${this.subCounter}`;
     const runId = `mock-run-sub-${this.subCounter}`;
     const sessionKey = `mock-session-sub-${this.subCounter}`;
+    const parentAgent = MOCK_AGENT_IDENTITIES[(this.subCounter - 1) % MOCK_AGENT_IDENTITIES.length];
 
     this.activeSubAgents.add(subId);
 
@@ -597,7 +605,14 @@ class SubAgentSimulator {
       seq: 1,
       stream: "lifecycle",
       ts: Date.now(),
-      data: { phase: "start", agentId: subId, parentAgentId: "main" },
+      data: {
+        phase: "start",
+        agentId: subId,
+        parentAgentId: parentAgent.id,
+        label: profile.name,
+        role: profile.role,
+        task: profile.task,
+      },
       sessionKey,
     });
 
@@ -610,7 +625,7 @@ class SubAgentSimulator {
           seq: 2,
           stream: "assistant",
           ts: Date.now(),
-          data: { text: `サポート担当${this.subCounter}が依頼内容を分析しています…` },
+          data: { text: `${profile.name}（${profile.role}）が依頼内容を分析しています…` },
           sessionKey,
         });
       },
@@ -644,7 +659,7 @@ class SubAgentSimulator {
           seq: 4,
           stream: "assistant",
           ts: Date.now(),
-          data: { text: `サポート担当${this.subCounter}が分析を完了しました。` },
+          data: { text: `${profile.name}が「${profile.task}」を完了しました。` },
           sessionKey,
         });
       },
@@ -652,7 +667,7 @@ class SubAgentSimulator {
     );
 
     // lifecycle end
-    const endDelay = randRange(8000, 15_000);
+    const endDelay = randRange(12_000, 18_000);
     this.schedule(() => {
       if (!this.running) return;
       this.emit("agent", {
@@ -667,59 +682,80 @@ class SubAgentSimulator {
     }, endDelay);
   }
 
-  private scheduleAgentToAgentComm(delayMs: number): void {
+  private scheduleOfficeActivity(delayMs: number): void {
     this.schedule(() => {
       if (!this.running) return;
-      const agents = MOCK_AGENT_IDENTITIES.map((agent) => agent.id);
-      const a = agents[Math.floor(Math.random() * agents.length)];
-      let b = a;
-      while (b === a) b = agents[Math.floor(Math.random() * agents.length)];
-
-      const sessionKey = `a2a-${Date.now()}`;
-      const runIdA = `a2a-run-${a}-${Date.now()}`;
-      const runIdB = `a2a-run-${b}-${Date.now()}`;
-
-      // Both agents start in the same session (triggers collaboration link)
-      this.emit("agent", {
-        runId: runIdA,
-        seq: 1,
-        stream: "lifecycle",
-        ts: Date.now(),
-        data: { phase: "start", agentId: a },
-        sessionKey,
+      this.activityCounter++;
+      const groupSize = 3;
+      const group = Array.from({ length: groupSize }, (_, offset) => {
+        const index = (this.activityCursor + offset) % MOCK_AGENT_IDENTITIES.length;
+        return MOCK_AGENT_IDENTITIES[index];
       });
-      this.emit("agent", {
-        runId: runIdB,
-        seq: 1,
-        stream: "lifecycle",
-        ts: Date.now(),
-        data: { phase: "start", agentId: b },
-        sessionKey,
-      });
+      this.activityCursor = (this.activityCursor + groupSize) % MOCK_AGENT_IDENTITIES.length;
 
-      // End communication after some time
-      const commDuration = randRange(10_000, 20_000);
-      this.schedule(() => {
-        if (!this.running) return;
+      const sessionKey = `共同作業-${this.activityCounter}`;
+      const runIds = group.map((agent) => `demo-run-${this.activityCounter}-${agent.id}`);
+
+      group.forEach((agent, index) => {
         this.emit("agent", {
-          runId: runIdA,
-          seq: 2,
+          runId: runIds[index],
+          seq: 1,
           stream: "lifecycle",
           ts: Date.now(),
-          data: { phase: "end", agentId: a },
+          data: { phase: "start", agentId: agent.id },
           sessionKey,
         });
-        this.emit("agent", {
-          runId: runIdB,
-          seq: 2,
-          stream: "lifecycle",
-          ts: Date.now(),
-          data: { phase: "end", agentId: b },
-          sessionKey,
+      });
+
+      this.schedule(
+        () => {
+          if (!this.running) return;
+          this.emit("agent", {
+            runId: runIds[0],
+            seq: 2,
+            stream: "assistant",
+            ts: Date.now(),
+            data: {
+              text: `${group.map((agent) => agent.name).join("・")}が会議室で共同作業中です。`,
+            },
+            sessionKey,
+          });
+        },
+        randRange(1200, 2000),
+      );
+
+      this.schedule(
+        () => {
+          if (!this.running) return;
+          const tools = ["web_search", "code_exec", "file_read", "analyze_data"];
+          this.emit("agent", {
+            runId: runIds[1],
+            seq: 2,
+            stream: "tool",
+            ts: Date.now(),
+            data: { name: tools[this.activityCounter % tools.length], phase: "start" },
+            sessionKey,
+          });
+        },
+        randRange(2500, 3500),
+      );
+
+      const commDuration = randRange(7500, 10_000);
+      this.schedule(() => {
+        if (!this.running) return;
+        group.forEach((agent, index) => {
+          this.emit("agent", {
+            runId: runIds[index],
+            seq: 3,
+            stream: "lifecycle",
+            ts: Date.now(),
+            data: { phase: "end", agentId: agent.id },
+            sessionKey,
+          });
         });
       }, commDuration);
 
-      this.scheduleAgentToAgentComm(randRange(15_000, 30_000));
+      this.scheduleOfficeActivity(randRange(2500, 3500));
     }, delayMs);
   }
 }

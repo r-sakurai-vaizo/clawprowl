@@ -58,10 +58,11 @@ export function SpeechBubbleOverlay({ agent }: SpeechBubbleOverlayProps) {
       <div
         className="h-0 w-0 border-l-[6px] border-r-[6px] border-t-[8px] border-l-transparent border-r-transparent border-t-gray-200 dark:border-t-gray-700"
         style={{
+          marginTop: 0,
+          marginBottom: 0,
           marginLeft: arrowAlign === "left" ? "16px" : arrowAlign === "right" ? "auto" : "auto",
           marginRight:
             arrowAlign === "right" ? "16px" : arrowAlign === "center" ? "auto" : undefined,
-          ...(arrowAlign === "center" ? { margin: "0 auto" } : {}),
         }}
       />
     </div>

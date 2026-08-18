@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { MockAdapter } from "../mock-adapter";
 
 describe("MockAdapter", () => {
@@ -10,6 +10,8 @@ describe("MockAdapter", () => {
 
   afterEach(() => {
     adapter.disconnect();
+    vi.useRealTimers();
+    vi.restoreAllMocks();
   });
 
   it("connect resolves without error", async () => {
@@ -90,5 +92,34 @@ describe("MockAdapter", () => {
     expect(messages.length).toBeGreaterThan(0);
     expect(messages[0]).toHaveProperty("role");
     expect(messages[0]).toHaveProperty("content");
+  });
+
+  it("全20名を順番に共同作業へ参加させ、サブエージェントへ固有名を付ける", async () => {
+    vi.useFakeTimers();
+    vi.spyOn(Math, "random").mockReturnValue(0.5);
+    const mainAgentIds = new Set<string>();
+    const subAgentNames: string[] = [];
+
+    adapter.onEvent((event, payload) => {
+      if (event !== "agent" || typeof payload !== "object" || payload === null) return;
+      const agentEvent = payload as {
+        stream?: string;
+        data?: Record<string, unknown>;
+      };
+      if (agentEvent.stream !== "lifecycle" || agentEvent.data?.phase !== "start") return;
+      if (typeof agentEvent.data.parentAgentId === "string") {
+        if (typeof agentEvent.data.label === "string") subAgentNames.push(agentEvent.data.label);
+      } else if (typeof agentEvent.data.agentId === "string") {
+        mainAgentIds.add(agentEvent.data.agentId);
+      }
+    });
+
+    await adapter.connect();
+    await vi.advanceTimersByTimeAsync(30_000);
+
+    expect(mainAgentIds.size).toBe(20);
+    expect(subAgentNames.length).toBeGreaterThan(0);
+    expect(subAgentNames[0]).toBe("月城ひかり");
+    expect(subAgentNames[0]).not.toContain("mock-sub");
   });
 });

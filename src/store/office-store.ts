@@ -32,6 +32,7 @@ import {
 } from "@/lib/movement-animator";
 import { applyEventToAgent } from "./agent-reducer";
 import { applyMeetingGathering, detectMeetingGroups } from "./meeting-manager";
+import { getSubAgentName, getSubAgentProfile } from "@/lib/subagent-profiles";
 import { computeMetrics } from "./metrics-reducer";
 
 const EVENT_HISTORY_LIMIT = 200;
@@ -309,7 +310,7 @@ export const useOfficeStore = create<OfficeStore>()(
             state.agents.delete(oldId);
 
             placeholder.id = info.agentId;
-            placeholder.name = info.label || `応援担当-${info.agentId.slice(0, 6)}`;
+            placeholder.name = info.label || getSubAgentName(info.agentId);
             placeholder.isPlaceholder = false;
             placeholder.isSubAgent = true;
             placeholder.parentAgentId = parentId;
@@ -325,7 +326,7 @@ export const useOfficeStore = create<OfficeStore>()(
             }
             const agent = createVisualAgent(
               info.agentId,
-              info.label || `応援担当-${info.agentId.slice(0, 6)}`,
+              info.label || getSubAgentName(info.agentId),
               true,
               occupied,
             );
@@ -408,7 +409,7 @@ export const useOfficeStore = create<OfficeStore>()(
           const phId = `placeholder-${phIdx}`;
           const ph: VisualAgent = {
             id: phId,
-            name: `待機メンバー-${phIdx}`,
+            name: getSubAgentProfile(phIdx).name,
             status: "idle",
             position: freeLounge,
             currentTool: null,
@@ -523,7 +524,7 @@ export const useOfficeStore = create<OfficeStore>()(
           if (state.agents.has(phId)) continue;
           const ph: VisualAgent = {
             id: phId,
-            name: `待機メンバー-${i}`,
+            name: getSubAgentProfile(i).name,
             status: "idle",
             position: { ...loungePositions[i] },
             currentTool: null,
@@ -618,6 +619,7 @@ export const useOfficeStore = create<OfficeStore>()(
         value: { parentId: string; info: SubAgentInfo } | null;
       } = { value: null };
       let newUnconfirmedId: string | null = null;
+      let collaborationEnded = false;
 
       set((state) => {
         const parsed = parseAgentEvent(event);
@@ -661,8 +663,12 @@ export const useOfficeStore = create<OfficeStore>()(
             info: {
               sessionKey: event.sessionKey ?? event.runId,
               agentId: dataAgentId,
-              label: `応援担当-${dataAgentId.slice(0, 8)}`,
-              task: "",
+              label:
+                typeof event.data.label === "string"
+                  ? event.data.label
+                  : getSubAgentName(dataAgentId),
+              task:
+                typeof event.data.task === "string" ? event.data.task : "依頼された業務を支援する",
               requesterSessionKey: event.sessionKey ?? "",
               startedAt: event.ts,
             },
@@ -718,6 +724,23 @@ export const useOfficeStore = create<OfficeStore>()(
           }
         }
 
+        if (event.sessionKey && event.stream === "lifecycle" && event.data.phase === "end") {
+          const participants = state.sessionKeyMap.get(event.sessionKey) ?? [];
+          const remaining = participants.filter((id) => id !== agentId);
+          if (remaining.length === 0) {
+            state.sessionKeyMap.delete(event.sessionKey);
+          } else {
+            state.sessionKeyMap.set(event.sessionKey, remaining);
+          }
+          const linkCount = state.links.length;
+          state.links = state.links.filter(
+            (link) =>
+              link.sessionKey !== event.sessionKey ||
+              (link.sourceId !== agentId && link.targetId !== agentId),
+          );
+          collaborationEnded = state.links.length !== linkCount;
+        }
+
         const agent = state.agents.get(agentId);
         if (agent) {
           const prevStatus = agent.status;
@@ -754,6 +777,10 @@ export const useOfficeStore = create<OfficeStore>()(
       const subToCreate = pendingSubAgentRef.value;
       if (subToCreate) {
         useOfficeStore.getState().addSubAgent(subToCreate.parentId, subToCreate.info);
+      }
+
+      if (collaborationEnded) {
+        scheduleMeetingGathering();
       }
 
       // Schedule auto-confirmation timeout for unconfirmed agents

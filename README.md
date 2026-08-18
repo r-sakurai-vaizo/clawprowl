@@ -71,12 +71,22 @@ clawprowl gateway run
 | `pnpm demo` | Gateway不要の日本語オフラインデモ |
 | `pnpm dev` | 実Gateway向け開発サーバー |
 | `pnpm build` | 本番ビルド |
+| `pnpm build:demo` | オフラインデモ用の本番ビルド |
+| `pnpm deploy:cloudflare` | Cloudflare Pagesへデモ版を再デプロイ |
 | `pnpm test` | テスト実行 |
 | `pnpm typecheck` | TypeScript型検査 |
 | `pnpm lint` | 静的解析 |
 | `pnpm format` | ソースコード整形 |
 | `pnpm check:ja` | 日本語漏れ・旧デモ名・文字化け検査 |
 | `pnpm check` | 静的解析、整形、日本語検査をまとめて実行 |
+
+## Cloudflare Pagesへの公開
+
+WranglerでCloudflareへログインした後、次のコマンドで日本語オフラインデモを再公開できます。
+
+```bash
+pnpm deploy:cloudflare
+```
 
 ## 技術構成
 

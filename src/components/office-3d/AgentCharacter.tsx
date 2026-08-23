@@ -42,7 +42,15 @@ export function AgentCharacter({ agent }: AgentCharacterProps) {
   const tickMovement = useOfficeStore((s) => s.tickMovement);
 
   const baseColor = isSubAgent ? "#60a5fa" : generateAvatar3dColor(agent.id);
-  const bodyOpacity = isPlaceholder ? 0.25 : isUnconfirmed ? 0.35 : isOffline ? 0.4 : isSubAgent ? 0.6 : 1;
+  const bodyOpacity = isPlaceholder
+    ? 0.25
+    : isUnconfirmed
+      ? 0.35
+      : isOffline
+        ? 0.4
+        : isSubAgent
+          ? 0.6
+          : 1;
   const displayColor = isOffline || isPlaceholder || isUnconfirmed ? "#6b7280" : baseColor;
 
   const [targetX, , targetZ] = position2dTo3d(agent.position);
@@ -175,8 +183,15 @@ export function AgentCharacter({ agent }: AgentCharacterProps) {
 
       {hovered && (
         <Html position={[0, 1.1, 0]} center transform={false} style={{ pointerEvents: "none" }}>
-          <div className="pointer-events-none whitespace-nowrap rounded bg-gray-800 px-2 py-1 text-[11px] text-white shadow">
-            {agent.name} — {t(`agent.statusLabels.${agent.status}`)}
+          <div className="pointer-events-none min-w-40 rounded-lg border border-white/10 bg-gray-900/95 px-2.5 py-2 text-[11px] text-white shadow-xl">
+            <div className="whitespace-nowrap font-semibold">
+              {agent.name} — {t(`agent.statusLabels.${agent.status}`)}
+            </div>
+            {agent.currentTask && (
+              <div className="mt-1 max-w-64 text-[10px] leading-relaxed text-violet-300">
+                ▸ {agent.currentTask.title}
+              </div>
+            )}
           </div>
         </Html>
       )}

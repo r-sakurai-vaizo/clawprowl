@@ -156,7 +156,11 @@ export function Sidebar() {
               }`}
             >
               {agent.avatarUrl ? (
-                <img src={agent.avatarUrl} alt={agent.name} className="h-6 w-6 rounded-full object-cover shrink-0" />
+                <img
+                  src={agent.avatarUrl}
+                  alt={agent.name}
+                  className="h-6 w-6 rounded-full object-cover shrink-0"
+                />
               ) : (
                 <SvgAvatar agentId={agent.id} size={24} />
               )}
@@ -178,6 +182,14 @@ export function Sidebar() {
                     · {timeAgo(t, agent.lastActiveAt)}
                   </span>
                 </div>
+                {agent.currentTask && (
+                  <div
+                    className="mt-0.5 truncate text-[10px] text-violet-500 dark:text-violet-300"
+                    title={agent.currentTask.title}
+                  >
+                    ▸ {agent.currentTask.title}
+                  </div>
+                )}
               </div>
             </button>
           ))}
@@ -221,7 +233,6 @@ export function Sidebar() {
           <AgentDetailPanel />
         </CollapsibleSection>
       )}
-
 
       {/* Event timeline */}
       <CollapsibleSection

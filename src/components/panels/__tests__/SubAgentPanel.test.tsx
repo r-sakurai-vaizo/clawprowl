@@ -39,7 +39,7 @@ describe("SubAgentPanel", () => {
     useOfficeStore.setState({ agents: new Map([["p1", parent]]) });
 
     render(<SubAgentPanel />);
-    expect(screen.getByText("无 Sub-Agent")).toBeDefined();
+    expect(screen.getByText("サブエージェントはいません")).toBeDefined();
   });
 
   it("renders sub-agent cards when sub-agents exist", () => {

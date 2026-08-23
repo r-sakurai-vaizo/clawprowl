@@ -1,0 +1,533 @@
+{
+  "dashboard": {
+    "title": "ダッシュボード",
+    "description": "Gatewayの状態、チャンネル接続、スキル稼働状況の概要",
+    "loading": "ダッシュボードを読み込んでいます…",
+    "stats": {
+      "channels": "チャンネル",
+      "skills": "スキル",
+      "usage": "プロバイダー利用量",
+      "uptime": "稼働時間",
+      "uptimeOnline": "オンライン"
+    },
+    "alerts": {
+      "gatewayDisconnected": "Gatewayとの接続が切れています。情報が最新でない可能性があります",
+      "channelErrors": "{{count}}件のチャンネルでエラーが発生しています"
+    },
+    "quickNav": {
+      "title": "クイックメニュー"
+    },
+    "channelOverview": {
+      "title": "接続中のチャンネル",
+      "empty": "接続中のチャンネルはありません"
+    },
+    "skillOverview": {
+      "title": "有効なスキル",
+      "empty": "有効なスキルはありません"
+    }
+  },
+  "channels": {
+    "title": "連携チャンネル",
+    "description": "Telegram、Discord、WhatsAppなどのメッセージ連携を管理します",
+    "stats": {
+      "total": "合計",
+      "connected": "接続済み",
+      "errors": "エラー"
+    },
+    "card": {
+      "lastConnected": "最終接続：{{time}}",
+      "details": "詳細",
+      "logout": "ログアウト"
+    },
+    "empty": {
+      "title": "設定済みのチャンネルはありません",
+      "description": "下からチャンネルの種類を選んで開始してください"
+    },
+    "available": {
+      "title": "利用できるチャンネル",
+      "configured": "設定済み",
+      "add": "追加"
+    },
+    "types": {
+      "telegram": "Telegram",
+      "discord": "Discord",
+      "whatsapp": "WhatsApp",
+      "signal": "Signal",
+      "feishu": "Feishu",
+      "imessage": "iMessage",
+      "matrix": "Matrix",
+      "line": "LINE",
+      "msteams": "Microsoft Teams",
+      "googlechat": "Google Chat",
+      "mattermost": "Mattermost"
+    },
+    "fields": {
+      "botToken": "Botトークン",
+      "applicationId": "アプリケーションID",
+      "phoneNumber": "電話番号",
+      "appId": "アプリID",
+      "appSecret": "アプリシークレット",
+      "homeserver": "ホームサーバーURL",
+      "accessToken": "アクセストークン",
+      "channelAccessToken": "チャンネルアクセストークン",
+      "channelSecret": "チャンネルシークレット",
+      "appPassword": "アプリパスワード",
+      "serviceAccount": "サービスアカウントJSON",
+      "serverUrl": "サーバーURL"
+    },
+    "placeholders": {
+      "botToken": "Botトークンを入力",
+      "applicationId": "アプリケーションIDを入力",
+      "phoneNumber": "+81…",
+      "appId": "アプリIDを入力",
+      "appSecret": "アプリシークレットを入力",
+      "homeserver": "https://matrix.org",
+      "accessToken": "アクセストークンを入力",
+      "channelAccessToken": "チャンネルアクセストークンを入力",
+      "channelSecret": "チャンネルシークレットを入力",
+      "appPassword": "アプリパスワードを入力",
+      "serviceAccount": "サービスアカウントJSONを貼り付け",
+      "serverUrl": "https://mattermost.example.com"
+    },
+    "configDialog": {
+      "required": "必須項目です",
+      "cancel": "キャンセル",
+      "save": "保存"
+    },
+    "qr": {
+      "description": "WhatsAppアプリでQRコードを読み取り、連携してください",
+      "startPairing": "連携を開始",
+      "loading": "QRコードを生成しています…",
+      "scanPrompt": "スマートフォンでQRコードを読み取ってください",
+      "waitingScan": "読み取りを待っています…",
+      "success": "連携しました",
+      "error": "連携に失敗しました"
+    },
+    "logout": {
+      "title": "チャンネルからログアウト",
+      "description": "「{{name}}」からログアウトしますか？再度連携が必要になります。"
+    }
+  },
+  "skills": {
+    "title": "スキル",
+    "description": "スキルとプラグインのインストール、有効化、設定を管理します",
+    "tabs": {
+      "installed": "インストール済み",
+      "marketplace": "マーケットプレイス"
+    },
+    "installed": {
+      "searchPlaceholder": "インストール済みスキルを検索…"
+    },
+    "filters": {
+      "all": "すべて（{{count}}）",
+      "built-in": "組み込み（{{count}}）",
+      "marketplace": "マーケットプレイス（{{count}}）"
+    },
+    "source": {
+      "builtIn": "組み込み",
+      "marketplace": "マーケットプレイス"
+    },
+    "card": {
+      "configure": "設定",
+      "install": "インストール",
+      "installing": "インストール中…",
+      "missingDeps": "必要な依存関係が不足しています",
+      "coreProtected": "コアスキルは無効にできません"
+    },
+    "detail": {
+      "info": "情報",
+      "source": "配布元",
+      "version": "バージョン",
+      "author": "作成者",
+      "primaryEnv": "主な環境変数",
+      "homepage": "ホームページ",
+      "requirements": "必要条件",
+      "config": "設定",
+      "configChecks": "設定チェック",
+      "noConfig": "このスキルに設定は必要ありません",
+      "apiKeyPlaceholder": "APIキーを入力",
+      "envVars": "環境変数",
+      "addVariable": "変数を追加",
+      "noEnvVars": "環境変数は設定されていません",
+      "keyPlaceholder": "キー",
+      "valuePlaceholder": "値",
+      "enabled": "有効",
+      "disabled": "無効",
+      "saving": "保存中…"
+    },
+    "install": {
+      "title": "{{name}}をインストール"
+    },
+    "marketplace": {
+      "securityNote": "インストール前に、スキルの配布元、ホームページ、依存関係を確認してください。この一覧はGatewayが返したインストール可能なスキルから作成されています。",
+      "searchPlaceholder": "マーケットプレイスのスキルを検索…",
+      "searchButton": "検索",
+      "emptyTitle": "利用できるスキルはありません",
+      "emptyDescription": "現在のGatewayからインストール可能なスキルが返されませんでした",
+      "noResults": "検索条件に一致するスキルはありません",
+      "installed": "インストール済み",
+      "version": "バージョン {{version}}",
+      "author": "作成者 {{author}}",
+      "learnMore": "詳細"
+    },
+    "toast": {
+      "enabled": "{{name}}を有効にしました",
+      "disabled": "{{name}}を無効にしました",
+      "toggleFailed": "スキルの切り替えに失敗しました",
+      "installSuccess": "{{name}}をインストールしました",
+      "installFailed": "{{name}}のインストールに失敗しました",
+      "installWarning": "インストール時の警告"
+    },
+    "empty": {
+      "title": "スキルが見つかりません",
+      "description": "タブまたは絞り込み条件を変更してください"
+    }
+  },
+  "clawhub": {
+    "searchPlaceholder": "ClawHubでスキルを検索…",
+    "offlineNotice": "ClawHubに接続できないため、ローカルのスキルを表示しています",
+    "noSearchResults": "一致するスキルが見つかりません",
+    "tryDifferentQuery": "別のキーワードで検索してください",
+    "noSkills": "利用できるスキルはありません",
+    "noSkillsDescription": "現在ClawHubにスキルはありません",
+    "loadMore": "さらに読み込む",
+    "downloads": "ダウンロード",
+    "stars": "スター",
+    "viewOnClawHub": "ClawHubで表示",
+    "notFound": "スキルが見つかりません",
+    "installTitle": "{{name}}をインストール",
+    "securityWarning": "インストール前にソースコードと権限を確認してください。第三者のスキルはシステムへアクセスする可能性があります。",
+    "installCommand": "ターミナルで次のコマンドを実行してください：",
+    "cancel": "キャンセル",
+    "installDone": "インストール済み"
+  },
+  "toast": {
+    "showDetail": "詳細を表示",
+    "hideDetail": "詳細を隠す"
+  },
+  "commandResult": {
+    "exitCode": "終了コード",
+    "copyAll": "すべてコピー"
+  },
+  "restart": {
+    "pending": "{{seconds}}秒後にGatewayを再起動します…",
+    "disconnected": "Gatewayとの接続が切れました。再起動を待っています…",
+    "reconnecting": "再接続中…",
+    "complete": "Gatewayがオンラインに戻りました"
+  },
+  "cron": {
+    "title": "定期タスク",
+    "description": "定期タスクの作成、編集、有効化、即時実行を管理します",
+    "stats": {
+      "total": "合計",
+      "active": "有効",
+      "paused": "一時停止",
+      "failed": "失敗"
+    },
+    "card": {
+      "lastRun": "前回の実行",
+      "nextRun": "次回の実行",
+      "runNow": "今すぐ実行"
+    },
+    "presets": {
+      "everyHour": "毎時",
+      "daily9am": "毎日 午前9時",
+      "daily6pm": "毎日 午後6時",
+      "weeklyMon": "毎週月曜 午前9時",
+      "monthlyFirst": "毎月1日",
+      "every30min": "30分ごと"
+    },
+    "dialog": {
+      "createTitle": "定期タスクを作成",
+      "editTitle": "定期タスクを編集",
+      "name": "タスク名",
+      "namePlaceholder": "タスク名を入力",
+      "description": "説明",
+      "descriptionPlaceholder": "任意の説明を入力",
+      "schedule": "実行予定",
+      "cronHelp": "標準Cron式：分 時 日 月 曜日",
+      "message": "メッセージ",
+      "messagePlaceholder": "AI社員へ送るメッセージを入力",
+      "required": "必須項目です"
+    },
+    "empty": {
+      "title": "定期タスクはありません",
+      "createFirst": "最初のタスクを作成"
+    },
+    "delete": {
+      "title": "定期タスクを削除",
+      "description": "この定期タスクを削除しますか？この操作は取り消せません。"
+    },
+    "run": {
+      "title": "今すぐ実行",
+      "description": "この定期タスクを今すぐ実行しますか？"
+    }
+  },
+  "settings": {
+    "title": "設定",
+    "description": "表示、AIプロバイダー、Gateway、更新を設定します",
+    "appearance": {
+      "title": "表示",
+      "theme": "テーマ",
+      "themeLight": "ライト",
+      "themeDark": "ダーク",
+      "themeSystem": "システム設定に従う",
+      "language": "言語",
+      "langEn": "日本語"
+    },
+    "providers": {
+      "title": "AIプロバイダー",
+      "description": "AIモデルのプロバイダー設定を管理します",
+      "add": "プロバイダーを追加",
+      "empty": "AIプロバイダーが設定されていません",
+      "emptyHint": "上のボタンから最初のプロバイダーを追加してください",
+      "apiKeyConfigured": "設定済み",
+      "apiKeyNotConfigured": "未設定",
+      "systemDiscovered": "システム",
+      "modelCount": "{{count}}モデル",
+      "deleteTitle": "プロバイダーを削除",
+      "deleteDescription": "「{{name}}」を削除しますか？再設定が必要になります。",
+      "addDialog": {
+        "title": "プロバイダーを追加",
+        "selectType": "プロバイダーの種類を選択",
+        "backToSelect": "種類の選択に戻る",
+        "providerId": "プロバイダーID",
+        "providerIdHint": "設定ファイル内で一意となる識別子",
+        "baseUrl": "ベースURL",
+        "apiKey": "APIキー",
+        "apiType": "API種別",
+        "idConflict": "このプロバイダーIDは既に存在します",
+        "cancel": "キャンセル",
+        "save": "保存"
+      },
+      "editDialog": {
+        "title": "プロバイダーを編集",
+        "apiKeyPlaceholder": "変更しない場合は空欄のままにしてください",
+        "cancel": "キャンセル",
+        "save": "保存"
+      },
+      "models": {
+        "title": "モデル",
+        "add": "モデルを追加",
+        "remove": "モデルを削除",
+        "empty": "モデルがありません。上のボタンから追加してください。",
+        "untitled": "名称未設定のモデル",
+        "new": "新着",
+        "id": "モデルID",
+        "name": "表示名",
+        "reasoning": "推論",
+        "inputTypes": "入力形式",
+        "input_text": "テキスト",
+        "input_image": "画像",
+        "yes": "はい",
+        "no": "いいえ",
+        "apiOverride": "APIの上書き設定",
+        "inheritProvider": "プロバイダー設定を継承",
+        "contextWindow": "コンテキスト長",
+        "maxTokens": "最大出力トークン数",
+        "cost": "料金（100万トークンあたり）",
+        "costHint": "100万トークンあたりの米ドル料金。0は無料です。",
+        "cost_input": "入力",
+        "cost_output": "出力",
+        "cost_cacheRead": "キャッシュ読み取り",
+        "cost_cacheWrite": "キャッシュ書き込み",
+        "showAdvanced": "高度な互換性設定を表示",
+        "hideAdvanced": "高度な設定を隠す",
+        "default": "既定値",
+        "thinkingFormat": "思考形式",
+        "maxTokensField": "最大トークン数のフィールド名",
+        "compat_supportsStore": "保存・メモリーに対応",
+        "compat_supportsDeveloperRole": "開発者ロールに対応",
+        "compat_supportsReasoningEffort": "推論強度に対応",
+        "compat_supportsUsageInStreaming": "ストリーミング中の利用量取得",
+        "compat_supportsStrictMode": "厳密モードに対応",
+        "compat_requiresToolResultName": "ツール結果名が必要",
+        "compat_requiresAssistantAfterToolResult": "ツール結果後にアシスタント応答が必要",
+        "compat_requiresThinkingAsText": "思考をテキストとして扱う",
+        "compat_requiresMistralToolIds": "Mistral形式のツールIDが必要"
+      }
+    },
+    "gateway": {
+      "title": "Gateway",
+      "description": "Gatewayの稼働状況",
+      "version": "バージョン",
+      "port": "ポート",
+      "uptime": "稼働時間",
+      "mode": "モード",
+      "nodeVersion": "Node.js",
+      "platform": "プラットフォーム",
+      "refresh": "更新",
+      "notConnected": "Gatewayに接続されていません",
+      "notConnectedHint": "ClawProwl Gatewayが起動していることを確認してください",
+      "uptimeFormat": "{{hours}}時間{{minutes}}分"
+    },
+    "update": {
+      "title": "アップデート",
+      "currentVersion": "現在のバージョン",
+      "channel": "更新チャンネル",
+      "checkUpdate": "更新を確認",
+      "updating": "更新中…",
+      "confirmTitle": "更新の確認",
+      "confirmDescription": "更新中はGatewayが再起動し、一時的に接続が切れます。続行しますか？",
+      "resultOk": "更新しました（{{before}} → {{after}}）。Gatewayを再起動しています",
+      "resultNoop": "最新版です",
+      "resultError": "更新に失敗しました：{{reason}}"
+    },
+    "advanced": {
+      "title": "詳細設定",
+      "devMode": "開発者モード",
+      "devModeHint": "有効にすると開発者向けツールを表示します"
+    },
+    "developer": {
+      "title": "開発者向けツール",
+      "gatewayToken": "Gatewayトークン",
+      "tokenConfigured": "設定済み",
+      "tokenHint": "完全なトークンはCLIで `clawprowl config get gateway.auth.token` を実行して確認できます",
+      "configPath": "設定ファイルの場所",
+      "rawConfig": "設定の生データ",
+      "showConfig": "表示",
+      "hideConfig": "非表示",
+      "wsUrl": "WebSocket URL",
+      "connectionStatus": "接続状態",
+      "copied": "コピーしました"
+    },
+    "about": {
+      "title": "このアプリについて",
+      "appName": "ClawProwl 日本語版",
+      "tagline": "AI社員の共同作業と稼働状況を可視化",
+      "version": "バージョン",
+      "docs": "ドキュメント",
+      "github": "GitHub"
+    },
+    "restartWarning": "設定の保存後にGatewayが自動的に再起動し、一時的に接続が切れます",
+    "configConflict": "別のクライアントが設定を変更したため、自動的に再読み込みしました"
+  },
+  "viewModels": {
+    "statusLabels": {
+      "connected": "接続済み",
+      "disconnected": "未接続",
+      "connecting": "接続中",
+      "error": "エラー"
+    },
+    "taskStatus": {
+      "active": "有効",
+      "paused": "一時停止"
+    },
+    "schedule": {
+      "daily": "毎日 {{time}}",
+      "weekly": "毎週{{day}} {{time}}",
+      "every": "{{minutes}}分ごと",
+      "at": "{{time}}",
+      "unknown": "不明"
+    },
+    "skillSource": {
+      "builtIn": "組み込み",
+      "marketplace": "マーケットプレイス"
+    }
+  },
+  "agents": {
+    "title": "AI社員管理",
+    "description": "AI社員の設定、コアファイル、モデルを管理します",
+    "panelTitle": "AI社員",
+    "detailDescription": "AI社員 {{id}} の作業領域と振り分け設定",
+    "configured": "{{count}}名を設定済み",
+    "refresh": "更新",
+    "searchPlaceholder": "AI社員を検索…",
+    "noAgents": "AI社員がいません",
+    "noAgentsDesc": "AI社員はまだ設定されていません",
+    "selectAgent": "AI社員を選択",
+    "selectAgentDesc": "一覧からAI社員を選ぶと詳細を確認できます",
+    "defaultBadge": "既定",
+    "addAgent": "AI社員を追加",
+    "tabs": {
+      "overview": "概要",
+      "files": "ファイル",
+      "tools": "ツール",
+      "skills": "スキル",
+      "channels": "チャンネル",
+      "cronJobs": "定期タスク"
+    },
+    "overview": {
+      "title": "基本情報",
+      "agentId": "AI社員ID",
+      "name": "名前",
+      "workspace": "作業領域",
+      "isDefault": "既定のAI社員",
+      "yes": "はい",
+      "no": "いいえ",
+      "modelConfig": "モデル設定",
+      "primaryModel": "主モデル",
+      "primaryModelPlaceholder": "主モデルを選択…",
+      "fallbackModels": "代替モデル",
+      "fallbackPlaceholder": "代替モデルを選択…",
+      "addFallback": "代替モデルを追加",
+      "save": "保存",
+      "saving": "保存中…",
+      "saveSuccess": "保存しました",
+      "saveError": "保存に失敗しました",
+      "deleteAgent": "AI社員を削除",
+      "cannotDeleteDefault": "既定のAI社員は削除できません"
+    },
+    "files": {
+      "title": "コアファイル",
+      "description": "人格、役割、ツール利用方針を定義するファイルです。",
+      "workspace": "作業領域",
+      "noFiles": "ファイルがありません",
+      "selectFile": "内容を表示するファイルを選択してください",
+      "content": "内容",
+      "reset": "元に戻す",
+      "save": "保存",
+      "saving": "保存中…",
+      "saveSuccess": "ファイルを保存しました",
+      "saveError": "保存に失敗しました",
+      "unsavedChanges": "未保存の変更があります",
+      "justNow": "たった今",
+      "hoursAgo": "{{count}}時間前",
+      "daysAgo": "{{count}}日前"
+    },
+    "tools": {
+      "title": "ツール利用方針",
+      "profile": "プロファイル",
+      "allowList": "許可リスト",
+      "denyList": "拒否リスト",
+      "noConfig": "このAI社員にツール利用方針は設定されていません",
+      "all": "すべて"
+    },
+    "skills": {
+      "title": "スキル設定",
+      "noRestriction": "スキル制限なし（有効なスキルをすべて使用）",
+      "defaultConfig": "既定のスキル設定を使用",
+      "allowedSkills": "許可するスキル"
+    },
+    "channels": {
+      "title": "チャンネル振り分け",
+      "noBindings": "このAI社員に割り当てられたチャンネルはありません"
+    },
+    "cronJobs": {
+      "title": "定期タスク",
+      "noCronJobs": "このAI社員の定期タスクはありません"
+    },
+    "createDialog": {
+      "title": "AI社員を追加",
+      "name": "名前",
+      "namePlaceholder": "AI社員の名前を入力",
+      "nameRequired": "名前は必須です",
+      "workspace": "作業領域のパス",
+      "workspacePlaceholder": "例：~/.clawprowl/workspace-sakura",
+      "workspaceRequired": "作業領域のパスは必須です",
+      "emoji": "絵文字",
+      "emojiPlaceholder": "例：🌸",
+      "cancel": "キャンセル",
+      "create": "作成",
+      "creating": "作成中…"
+    },
+    "deleteDialog": {
+      "title": "AI社員を削除",
+      "confirm": "AI社員「{{name}}」を削除しますか？この操作は取り消せません。",
+      "deleteFiles": "作業領域のファイルも削除する",
+      "cancel": "キャンセル",
+      "delete": "削除",
+      "deleting": "削除中…"
+    }
+  }
+}

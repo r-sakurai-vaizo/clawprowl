@@ -67,7 +67,7 @@ export function useGatewayConnection({ url, token }: UseGatewayConnectionOptions
         }
 
         // 3. Init agents (triggers prefillLoungePlaceholders with correct maxSubAgents)
-        const agentList = await adapter.agentsList() as AgentsListResponse;
+        const agentList = (await adapter.agentsList()) as AgentsListResponse;
         initAgents(agentList.agents);
         setOperatorScopes(["operator.admin"]);
         setConnectionStatus("connected");
@@ -130,7 +130,16 @@ export function useGatewayConnection({ url, token }: UseGatewayConnectionOptions
       rpcRef.current = null;
       throttleRef.current = null;
     };
-  }, [url, token, setConnectionStatus, initAgents, processAgentEvent, setOperatorScopes, setMaxSubAgents, setAgentToAgentConfig]);
+  }, [
+    url,
+    token,
+    setConnectionStatus,
+    initAgents,
+    processAgentEvent,
+    setOperatorScopes,
+    setMaxSubAgents,
+    setAgentToAgentConfig,
+  ]);
 
   useSubAgentPoller(rpcRef);
   useUsagePoller(rpcRef);
@@ -174,15 +183,15 @@ async function fetchGatewayConfig(
     });
     const val = resp.value as Record<string, unknown> | undefined;
     if (val) {
-      const subagents = val["agents.defaults.subagents"] as
-        | { maxConcurrent?: number }
-        | undefined;
-      if (subagents?.maxConcurrent && subagents.maxConcurrent >= 1 && subagents.maxConcurrent <= 50) {
+      const subagents = val["agents.defaults.subagents"] as { maxConcurrent?: number } | undefined;
+      if (
+        subagents?.maxConcurrent &&
+        subagents.maxConcurrent >= 1 &&
+        subagents.maxConcurrent <= 50
+      ) {
         setMaxSubAgents(subagents.maxConcurrent);
       }
-      const a2a = val["tools.agentToAgent"] as
-        | { enabled?: boolean; allow?: string[] }
-        | undefined;
+      const a2a = val["tools.agentToAgent"] as { enabled?: boolean; allow?: string[] } | undefined;
       if (a2a) {
         setAgentToAgentConfig({
           enabled: a2a.enabled ?? false,

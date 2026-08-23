@@ -97,7 +97,7 @@ export function UpdateSection() {
               {updateResult.result.status === "noop" && t("settings.update.resultNoop")}
               {updateResult.result.status === "error" &&
                 t("settings.update.resultError", {
-                  reason: updateResult.result.reason ?? "Unknown error",
+                  reason: updateResult.result.reason ?? t("common:errors.unknownError"),
                 })}
             </span>
           </div>

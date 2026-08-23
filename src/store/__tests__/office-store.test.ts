@@ -55,6 +55,53 @@ describe("office-store", () => {
       expect(state.agents.get("agent-2")?.name).toBe("Rev");
       expect(state.globalMetrics.totalAgents).toBe(2);
     });
+
+    it("日本語のデモ業務を既知のAI社員へ設定する", () => {
+      useOfficeStore.getState().initAgents([{ id: "researcher", name: "鈴木 葵" }]);
+
+      expect(useOfficeStore.getState().agents.get("researcher")?.currentTask?.title).toBe(
+        "競合3社の料金プラン調査",
+      );
+    });
+  });
+
+  describe("work tasks", () => {
+    it("複数の仕事をAI社員へ自動で割り当て、完了にできる", () => {
+      useOfficeStore.getState().initAgents([
+        { id: "agent-1", name: "担当A" },
+        { id: "agent-2", name: "担当B" },
+      ]);
+
+      useOfficeStore.getState().assignWorkTasks(["市場調査", "提案書の作成"]);
+
+      const assigned = useOfficeStore.getState().workTasks.filter((task) => task.source === "user");
+      expect(assigned).toHaveLength(2);
+      expect(new Set(assigned.map((task) => task.assigneeId)).size).toBe(2);
+      expect(useOfficeStore.getState().agents.get("agent-1")?.currentTask?.title).toBe("市場調査");
+
+      useOfficeStore.getState().completeWorkTask(assigned[1].id);
+
+      expect(
+        useOfficeStore.getState().workTasks.find((task) => task.id === assigned[1].id)?.status,
+      ).toBe("done");
+      expect(useOfficeStore.getState().agents.get(assigned[1].assigneeId)?.currentTask).toBeNull();
+    });
+
+    it("担当者を指定して仕事を割り当てる", () => {
+      useOfficeStore.getState().initAgents([
+        { id: "agent-1", name: "担当A" },
+        { id: "agent-2", name: "担当B" },
+      ]);
+
+      useOfficeStore.getState().assignWorkTasks(["契約書レビュー"], "agent-2");
+
+      expect(useOfficeStore.getState().agents.get("agent-2")?.currentTask?.title).toBe(
+        "契約書レビュー",
+      );
+      expect(useOfficeStore.getState().agents.get("agent-2")?.speechBubble?.text).toContain(
+        "契約書レビュー",
+      );
+    });
   });
 
   describe("processAgentEvent", () => {
@@ -197,10 +244,15 @@ describe("office-store", () => {
     });
 
     it("setTheme persists to localStorage", () => {
-      const spy = vi.spyOn(Storage.prototype, "setItem");
+      const setItem = vi.fn();
+      const previous = Object.getOwnPropertyDescriptor(window, "localStorage");
+      Object.defineProperty(window, "localStorage", {
+        configurable: true,
+        value: { setItem },
+      });
       useOfficeStore.getState().setTheme("light");
-      expect(spy).toHaveBeenCalledWith("clawprowl-theme", "light");
-      spy.mockRestore();
+      expect(setItem).toHaveBeenCalledWith("clawprowl-theme", "light");
+      if (previous) Object.defineProperty(window, "localStorage", previous);
     });
 
     it("setTheme switches back to dark", () => {

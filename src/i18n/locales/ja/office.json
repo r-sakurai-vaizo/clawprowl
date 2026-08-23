@@ -1,0 +1,26 @@
+{
+  "loading3D": "3Dオフィスを読み込んでいます…",
+  "entrance": "エントランス",
+  "workInput": {
+    "title": "AI社員に仕事を依頼",
+    "summary": "{{count}}件の仕事が進行中",
+    "taskLabel": "依頼する仕事（1行につき1件・最大8件）",
+    "placeholder": "例：競合3社の料金を比較する\n例：新商品の紹介文を3案作成する",
+    "assignee": "担当するAI社員",
+    "autoAssign": "適任者へ自動で割り当て",
+    "assign": "{{count}}件を依頼",
+    "currentWork": "現在の仕事",
+    "clickToComplete": "✓で完了",
+    "complete": "完了にする",
+    "status": {
+      "working": "作業中",
+      "done": "完了"
+    }
+  },
+  "zones": {
+    "desk": "執務エリア",
+    "meeting": "会議室",
+    "hotDesk": "フリーデスク",
+    "lounge": "ラウンジ"
+  }
+}

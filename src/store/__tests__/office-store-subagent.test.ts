@@ -141,8 +141,21 @@ describe("office-store Sub-Agent management", () => {
     expect(sub.position.y).toBeGreaterThan(350);
   });
 
+  it("待機中のサブエージェントにも日本語の固有名を表示する", () => {
+    const placeholders = Array.from(useOfficeStore.getState().agents.values()).filter(
+      (agent) => agent.isPlaceholder,
+    );
+    const names = placeholders.map((agent) => agent.name);
+
+    expect(names).toHaveLength(8);
+    expect(new Set(names).size).toBe(8);
+    expect(names).toContain("月城ひかり");
+    expect(names.every((name) => !name.includes("待機メンバー"))).toBe(true);
+  });
+
   it("returnFromMeeting returns sub-agent to hotDesk", () => {
-    const { addSubAgent, updateAgent, moveToMeeting, completeMovement, returnFromMeeting } = useOfficeStore.getState();
+    const { addSubAgent, updateAgent, moveToMeeting, completeMovement, returnFromMeeting } =
+      useOfficeStore.getState();
     addSubAgent("parent", mkSubInfo("sub-meet"));
     updateAgent("sub-meet", { zone: "hotDesk" });
 

@@ -1,14 +1,14 @@
 import i18n from "i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 import { initReactI18next } from "react-i18next";
-import enChat from "./locales/en/chat.json";
-import enCommon from "./locales/en/common.json";
-import enConsole from "./locales/en/console.json";
-import enLayout from "./locales/en/layout.json";
-import enOffice from "./locales/en/office.json";
-import enPanels from "./locales/en/panels.json";
+import jaChat from "./locales/ja/chat.json";
+import jaCommon from "./locales/ja/common.json";
+import jaConsole from "./locales/ja/console.json";
+import jaLayout from "./locales/ja/layout.json";
+import jaOffice from "./locales/ja/office.json";
+import jaPanels from "./locales/ja/panels.json";
 
-export const supportedLngs = ["en"] as const;
+export const supportedLngs = ["ja"] as const;
 export type SupportedLng = (typeof supportedLngs)[number];
 
 export const namespaces = ["common", "layout", "office", "panels", "chat", "console"] as const;
@@ -18,17 +18,18 @@ i18n
   .use(initReactI18next)
   .init({
     resources: {
-      en: {
-        common: enCommon,
-        layout: enLayout,
-        office: enOffice,
-        panels: enPanels,
-        chat: enChat,
-        console: enConsole,
+      ja: {
+        common: jaCommon,
+        layout: jaLayout,
+        office: jaOffice,
+        panels: jaPanels,
+        chat: jaChat,
+        console: jaConsole,
       },
     },
     supportedLngs: [...supportedLngs],
-    fallbackLng: "en",
+    lng: "ja",
+    fallbackLng: "ja",
     defaultNS: "common",
     ns: [...namespaces],
     interpolation: {

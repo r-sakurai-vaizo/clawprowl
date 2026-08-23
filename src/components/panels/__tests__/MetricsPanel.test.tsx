@@ -33,6 +33,6 @@ describe("MetricsPanel", () => {
 
   it("displays token rate", () => {
     render(<MetricsPanel />);
-    expect(screen.getByText("42/min")).toBeInTheDocument();
+    expect(screen.getByText("42/分")).toBeInTheDocument();
   });
 });

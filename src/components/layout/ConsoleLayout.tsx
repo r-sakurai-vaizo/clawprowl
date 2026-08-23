@@ -72,11 +72,13 @@ export function ConsoleLayout() {
               onClick={() => setMobileNavOpen(false)}
               onKeyDown={(e) => e.key === "Escape" && setMobileNavOpen(false)}
               className="sm:hidden fixed inset-0 z-30 bg-black/40"
-              aria-label="Close menu"
+              aria-label={t("sidebar.closeMenu")}
             />
             <nav className="sm:hidden fixed inset-y-0 left-0 z-40 flex w-52 flex-col border-r border-gray-200 bg-white py-3 shadow-xl dark:border-gray-700 dark:bg-gray-900">
               <div className="flex items-center justify-between px-4 pb-3 border-b border-gray-100 dark:border-gray-800">
-                <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">Menu</span>
+                <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                  {t("sidebar.menu")}
+                </span>
                 <button
                   type="button"
                   onClick={() => setMobileNavOpen(false)}

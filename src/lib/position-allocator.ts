@@ -117,11 +117,7 @@ export interface DeskSlot {
  * Fills as many columns as the zone width allows (min desk width = 100px),
  * defaulting to at least 4 columns, then grows rows as needed.
  */
-export function adaptiveCols(
-  zoneWidth: number,
-  slotCount: number,
-  padX = 40,
-): number {
+export function adaptiveCols(zoneWidth: number, slotCount: number, padX = 40): number {
   const availW = zoneWidth - padX * 2;
   const maxCols = Math.max(1, Math.floor(availW / MIN_DESK_WIDTH));
   return Math.min(maxCols, Math.max(slotCount, 4));

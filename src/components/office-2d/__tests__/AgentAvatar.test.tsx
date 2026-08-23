@@ -63,6 +63,23 @@ describe("AgentAvatar", () => {
     expect(fos.length).toBeGreaterThanOrEqual(1);
   });
 
+  it("shows the concrete task under the agent name", () => {
+    const { getByText } = renderAvatar({
+      ...mockAgent,
+      currentTask: {
+        id: "work-1",
+        title: "競合サービスの料金調査",
+        assigneeId: "a1",
+        assigneeName: "TestBot",
+        createdAt: Date.now(),
+        source: "user",
+        status: "working",
+      },
+    });
+
+    expect(getByText("▸ 競合サービスの料金調査")).toBeTruthy();
+  });
+
   it("clicking triggers selectAgent", () => {
     const { container } = renderAvatar();
     const g = container.querySelector("g");
@@ -73,6 +90,6 @@ describe("AgentAvatar", () => {
   it("shows sub-agent badge when isSubAgent is true", () => {
     const { container } = renderAvatar({ ...mockAgent, isSubAgent: true });
     const badge = container.querySelector("text");
-    expect(badge?.textContent).toBe("S");
+    expect(badge?.textContent).toBe("補");
   });
 });

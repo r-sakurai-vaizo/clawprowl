@@ -29,7 +29,7 @@ describe("Agents Store", () => {
     await useAgentsStore.getState().fetchAgents();
     const s = useAgentsStore.getState();
     expect(s.isLoading).toBe(false);
-    expect(s.agents.length).toBe(4);
+    expect(s.agents.length).toBe(20);
     expect(s.defaultAgentId).toBe("main");
     expect(s.agents[0].default).toBe(true);
   });
@@ -97,7 +97,7 @@ describe("Agents Store", () => {
       workspace: "~/.clawprowl/workspace-test",
     });
     expect(agentId).toBeTruthy();
-    expect(useAgentsStore.getState().agents.length).toBe(4);
+    expect(useAgentsStore.getState().agents.length).toBe(20);
   });
 
   it("deleteAgent() removes agent and auto-selects default", async () => {

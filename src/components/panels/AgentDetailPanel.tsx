@@ -51,6 +51,17 @@ export function AgentDetailPanel() {
         </div>
       )}
 
+      {agent.currentTask && (
+        <div className="mb-2 rounded-lg border border-violet-200 bg-violet-50 px-2.5 py-2 text-xs dark:border-violet-800/70 dark:bg-violet-950/40">
+          <div className="mb-0.5 text-[10px] font-semibold uppercase tracking-wide text-violet-500 dark:text-violet-300">
+            {t("agentDetail.currentTask")}
+          </div>
+          <div className="font-medium leading-relaxed text-violet-900 dark:text-violet-100">
+            {agent.currentTask.title}
+          </div>
+        </div>
+      )}
+
       {agent.speechBubble && (
         <div className="mb-2 rounded bg-white px-2 py-1.5 text-xs leading-relaxed text-gray-700 shadow-sm dark:bg-gray-800 dark:text-gray-300">
           <Markdown>{agent.speechBubble.text}</Markdown>

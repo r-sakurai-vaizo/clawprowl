@@ -33,7 +33,12 @@ export function ProviderCard({ providerId, config, onEdit, onDelete }: ProviderC
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3 min-w-0">
           {meta.id === "bankr" ? (
-            <img src="https://docs.bankr.bot/img/logo.svg" alt="Bankr" className="h-6 w-6" title={meta.name} />
+            <img
+              src="https://docs.bankr.bot/img/logo.svg"
+              alt="Bankr"
+              className="h-6 w-6"
+              title={meta.name}
+            />
           ) : (
             <span className="text-xl" title={meta.name}>
               {meta.icon}
@@ -111,7 +116,7 @@ export function ProviderCard({ providerId, config, onEdit, onDelete }: ProviderC
             type="button"
             onClick={onEdit}
             className="rounded p-1.5 text-gray-500 hover:bg-gray-200 hover:text-gray-700 dark:hover:bg-gray-600 dark:hover:text-gray-300 transition-colors"
-            title="Edit"
+            title={t("common:actions.edit")}
           >
             <Pencil className="h-4 w-4" />
           </button>
@@ -119,7 +124,7 @@ export function ProviderCard({ providerId, config, onEdit, onDelete }: ProviderC
             type="button"
             onClick={onDelete}
             className="rounded p-1.5 text-gray-500 hover:bg-purple-100 hover:text-violet-600 dark:hover:bg-violet-900/30 dark:hover:text-violet-400 transition-colors"
-            title="Delete"
+            title={t("common:actions.delete")}
           >
             <Trash2 className="h-4 w-4" />
           </button>

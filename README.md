@@ -1,284 +1,103 @@
-# ClawProwl
+# ClawProwl 日本語版
 
-> [@ClawProwl](https://x.com/clawprowl) OFFICIAL X
->
-> Visualize AI agent collaboration as a real-time digital twin office.
+AIエージェント同士の協働を、リアルタイムの「AI社員オフィス」として見える化する管理フロントエンドです。20名の日本語名を持つAI社員がデスクや会議室を行き来し、仕事・会話・ツール実行・エラーなどの状態を2D／3Dで表示します。
 
-**ClawProwl** is the visual monitoring and management frontend for the [ClawProwl](https://github.com/clawprowl/clawprowl) Multi-Agent system. It renders Agent work status, collaboration links, tool calls, and resource consumption through an isometric-style virtual office scene, along with a full-featured console for system management.
+本リポジトリは [clawprowl/clawprowl](https://github.com/clawprowl/clawprowl) を日本向けにローカライズしたフォークです。
 
-**Core Metaphor:** Agent = Digital Employee | Office = Agent Runtime | Desk = Session | Meeting Pod = Collaboration Context
+## 日本語版の特徴
 
------
+- UI、設定、管理画面、通知、モック応答を日本語化
+- 桜井さくら、佐藤 蓮、鈴木 葵など20名の日本語デモ社員
+- 日本のアニメキャラクター風に刷新したSVGアイコン
+- 2Dフロアと3Dオフィスの両方に対応
+- デスク、会議室、社員間の連携線、発話、ツール実行をリアルタイム表示
+- Gateway不要で試せるオフラインデモ
+- 日本語漏れ、旧デモ名、文字化けを検出する自動チェック
 
-## Features
+## まずオフラインデモを試す
 
-### Virtual Office
-
-- **2D Floor Plan** — SVG-rendered isometric office with desk zones, hot desks, meeting areas, and rich furniture (desks, chairs, sofas, plants, coffee cups)
-- **3D Scene** — React Three Fiber 3D office with character models, skill holograms, spawn portal effects, and post-processing
-- **Agent Avatars** — Deterministically generated SVG avatars from agent IDs with real-time status animations (idle, working, speaking, tool calling, error)
-- **Collaboration Lines** — Visual connections showing inter-Agent message flow
-- **Speech Bubbles** — Live Markdown text streaming and tool call display
-- **Side Panels** — Agent details, Token line charts, cost pie charts, activity heatmaps, SubAgent relationship graphs, event timelines
-
-### Chat
-
-- Bottom-docked chat bar for real-time conversations with Agents
-- Agent selector, streaming message display, Markdown rendering
-- Chat history drawer with timeline view
-
-![office-2D](./assets/office-2d.png)
-
-![office-3D](./assets/office-3d.png)
-
-#### Demo Video
-
-https://github.com/clawprowl/clawprowl/raw/main/assets/clawprowl-demo2D.mp4
-
-### Console
-
-Full system management interface with dedicated pages:
-
-| Page          | Features                                                                                                                                                  |
-| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Dashboard** | Overview stats, alert banners, Channel/Skill overview, quick navigation                                                                                   |
-| **Agents**    | Agent list/create/delete, detail tabs (Overview, Channels, Cron, Skills, Tools, Files)                                                                    |
-| **Channels**  | Channel cards, configuration dialogs, stats, WhatsApp QR binding                                                                                          |
-| **Skills**    | Skill marketplace, install options, skill detail dialogs                                                                                                  |
-| **Cron**      | Scheduled task management and statistics                                                                                                                  |
-| **Settings**  | Provider management (add/edit/model editor, system-discovered providers like OpenAI Codex OAuth), appearance, Gateway, developer, advanced, about, update |
-
-![console-dashboard](./assets/console-dashboard.png)
-
-![console-agent](./assets/console-agent.png)
-
-![console-setting](./assets/console-setting.png)
-
-### Other
-
-- **i18n** — Full Chinese/English bilingual support with runtime language switching
-- **Mock Mode** — Develop without a live Gateway connection
-- **Responsive** — Mobile-optimized with automatic 2D fallback
-
----
-
-## Tech Stack
-
-| Layer            | Technology                                      |
-| ---------------- | ----------------------------------------------- |
-| Build Tool       | Vite 6                                          |
-| UI Framework     | React 19                                        |
-| 2D Rendering     | SVG + CSS Animations                            |
-| 3D Rendering     | React Three Fiber (R3F) + @react-three/drei     |
-| State Management | Zustand 5 + Immer                               |
-| Styling          | Tailwind CSS 4                                  |
-| Routing          | React Router 7                                  |
-| Charts           | Recharts                                        |
-| i18n             | i18next + react-i18next                         |
-| Real-time        | Native WebSocket (connects to ClawProwl Gateway) |
-
----
-
-## Prerequisites
-
-- **Node.js 22+**
-- **pnpm** (package manager)
-- **[ClawProwl](https://github.com/clawprowl/clawprowl)** installed and configured
-
-ClawProwl is a companion frontend that connects to a running ClawProwl Gateway. It does **not** start or manage the Gateway itself.
-
----
-
-## Quick Launch
-
-The fastest way to run ClawProwl — no cloning required:
-
-```bash
-# Run directly (one-time)
-npx @clawprowl/clawprowl
-
-# Or install globally
-npm install -g @clawprowl/clawprowl
-clawprowl
-```
-
-### Gateway Token Auto-Detection
-
-If [ClawProwl](https://github.com/clawprowl/clawprowl) is installed locally, the Gateway auth token is **automatically detected** from `~/.clawprowl/clawprowl.json` — no manual configuration needed.
-
-You can also provide the token explicitly:
-
-```bash
-clawprowl --token <your-gateway-token>
-# or via environment variable
-OPENCLAW_GATEWAY_TOKEN=<token> clawprowl
-```
-
-### CLI Options
-
-| Flag                  | Description           | Default                |
-| --------------------- | --------------------- | ---------------------- |
-| `-t, --token <token>` | Gateway auth token    | auto-detected          |
-| `-g, --gateway <url>` | Gateway WebSocket URL | `ws://localhost:18789` |
-| `-p, --port <port>`   | Server port           | `5180`                 |
-| `--host <host>`       | Bind address          | `0.0.0.0`              |
-| `-h, --help`          | Show help             | —                      |
-
-> **Note:** This serves the pre-built production bundle. For development with hot reload, see [Development](#development) below.
-
----
-
-## Quick Start (from source)
-
-### 1. Install Dependencies
+必要なものは Node.js 22以上と pnpm です。
 
 ```bash
 pnpm install
+pnpm demo
 ```
 
-### 2. Configure Gateway Connection
+ブラウザで `http://localhost:5180` を開いてください。Gatewayを用意しなくても、20名のAI社員が動く2D／3Dオフィス、チャット、管理画面を確認できます。
 
-Create a `.env.local` file (gitignored) with your Gateway connection details:
+## 実際のGatewayへ接続する
 
-```bash
-cat > .env.local << 'EOF'
+このアプリはClawProwl Gatewayのフロントエンドです。Gateway自体の起動や管理は行いません。
+
+`.env.local` を作成します。
+
+```dotenv
 VITE_GATEWAY_URL=ws://localhost:18789
-VITE_GATEWAY_TOKEN=<your-gateway-token>
-EOF
+VITE_GATEWAY_TOKEN=ここにGatewayトークン
 ```
 
-Get your Gateway token:
-
-```bash
-clawprowl config get gateway.auth.token
-```
-
-### 3. Enable Device Auth Bypass (Required)
-
-ClawProwl is a pure web application and cannot provide Ed25519 device identity signatures that Gateway 2026.2.15+ requires for operator scopes. You must configure the Gateway to bypass this requirement:
-
-```bash
-clawprowl config set gateway.controlUi.dangerouslyDisableDeviceAuth true
-```
-
-**Restart the Gateway** after this configuration change.
-
-> **Security Note:** This bypass is intended for local development. In production, use a reverse proxy or other secure authentication mechanism.
-
-### 4. Start the Gateway
-
-Ensure the ClawProwl Gateway is running on the configured address (default `localhost:18789`). You can start it via:
-
-- The ClawProwl macOS app
-- `clawprowl gateway run` CLI command
-- Other deployment methods (see [ClawProwl documentation](https://github.com/clawprowl/clawprowl))
-
-### 5. Start the Dev Server
+開発サーバーを起動します。
 
 ```bash
 pnpm dev
 ```
 
-Open `http://localhost:5180` in your browser.
-
-### Environment Variables
-
-| Variable             | Required                              | Default                | Description                          |
-| -------------------- | ------------------------------------- | ---------------------- | ------------------------------------ |
-| `VITE_GATEWAY_URL`   | No                                    | `ws://localhost:18789` | Gateway WebSocket address            |
-| `VITE_GATEWAY_TOKEN` | Yes (when connecting to real Gateway) | —                      | Gateway auth token                   |
-| `VITE_MOCK`          | No                                    | `false`                | Enable mock mode (no Gateway needed) |
-
-### Mock Mode (No Gateway)
-
-To develop without a running Gateway, enable mock mode:
+Gateway 2026.2.15以降でローカル開発する場合は、デバイス認証の設定が必要です。
 
 ```bash
-VITE_MOCK=true pnpm dev
+clawprowl config set gateway.controlUi.dangerouslyDisableDeviceAuth true
+clawprowl gateway run
 ```
 
-This uses simulated Agent data for UI development.
+この設定はローカル開発向けです。本番環境ではリバースプロキシなどの安全な認証方式を利用してください。
 
----
+## 主な画面
 
-## Project Structure
+### AI社員オフィス
 
-```
-ClawProwl/
-├── src/
-│   ├── main.tsx / App.tsx           # Entry point and routing
-│   ├── i18n/                        # Internationalization (zh/en)
-│   ├── gateway/                     # Gateway communication layer
-│   │   ├── ws-client.ts             # WebSocket client + auth + reconnect
-│   │   ├── rpc-client.ts            # RPC request wrapper
-│   │   ├── event-parser.ts          # Event parsing + state mapping
-│   │   └── mock-adapter.ts          # Mock mode adapter
-│   ├── store/                       # Zustand state management
-│   │   ├── office-store.ts          # Main store (Agent state, connection, UI)
-│   │   └── console-stores/          # Per-page console stores
-│   ├── components/
-│   │   ├── layout/                  # AppShell, ConsoleLayout, Sidebar, TopBar
-│   │   ├── office-2d/               # 2D SVG floor plan + furniture
-│   │   ├── office-3d/               # 3D R3F scene
-│   │   ├── overlays/                # HTML overlays (speech bubbles)
-│   │   ├── panels/                  # Detail/metrics/chart panels
-│   │   ├── chat/                    # Chat dock bar
-│   │   ├── console/                 # Console feature components
-│   │   ├── pages/                   # Console route pages
-│   │   └── shared/                  # Shared components
-│   ├── hooks/                       # Custom React hooks
-│   ├── lib/                         # Utility library
-│   └── styles/                      # Global styles
-├── public/                          # Static assets
-├── tests/                           # Test files
-├── package.json
-├── vite.config.ts
-└── tsconfig.json
-```
+- 2D：SVG製のフロア、デスク、会議室、家具、移動アニメーション
+- 3D：React Three Fiber製の立体オフィス、社員、スキル表示、出現エフェクト
+- 状態表示：待機中、作業中、会話中、ツール実行中、エラー
+- 分析パネル：トークン、コスト、活動ヒートマップ、社員関係、イベント履歴
 
----
+### 管理コンソール
 
-## Development
+ダッシュボード、AI社員、チャンネル、スキル、定期タスク、プロバイダー、Gateway、外観などを日本語で管理できます。
 
-### Commands
+## 開発コマンド
+
+| コマンド | 内容 |
+| --- | --- |
+| `pnpm demo` | Gateway不要の日本語オフラインデモ |
+| `pnpm dev` | 実Gateway向け開発サーバー |
+| `pnpm build` | 本番ビルド |
+| `pnpm build:demo` | オフラインデモ用の本番ビルド |
+| `pnpm deploy:cloudflare` | Cloudflare Pagesへデモ版を再デプロイ |
+| `pnpm test` | テスト実行 |
+| `pnpm typecheck` | TypeScript型検査 |
+| `pnpm lint` | 静的解析 |
+| `pnpm format` | ソースコード整形 |
+| `pnpm check:ja` | 日本語漏れ・旧デモ名・文字化け検査 |
+| `pnpm check` | 静的解析、整形、日本語検査をまとめて実行 |
+
+## Cloudflare Pagesへの公開
+
+WranglerでCloudflareへログインした後、次のコマンドで日本語オフラインデモを再公開できます。
 
 ```bash
-pnpm install              # Install dependencies
-pnpm dev                  # Start dev server (port 5180)
-pnpm build                # Production build
-pnpm test                 # Run tests
-pnpm test:watch           # Test watch mode
-pnpm typecheck            # TypeScript type check
-pnpm lint                 # Oxlint linting
-pnpm format               # Oxfmt formatting
-pnpm check                # lint + format check
+pnpm deploy:cloudflare
 ```
 
-### Architecture
+## 技術構成
 
-ClawProwl connects to the Gateway via WebSocket and follows this data flow:
+- React 19 / TypeScript / Vite 6
+- React Three Fiber / Drei
+- Zustand / Immer
+- Tailwind CSS 4
+- i18next
+- Recharts
+- WebSocket
 
-```
-ClawProwl Gateway  ──WebSocket──>  ws-client.ts  ──>  event-parser.ts  ──>  Zustand Store  ──>  React Components
-     │                                                                          │
-     └── RPC (agents.list, chat.send, ...)  ──>  rpc-client.ts  ──────────────>─┘
-```
-
-The Gateway broadcasts real-time events (`agent`, `presence`, `health`, `heartbeat`) and responds to RPC requests. The frontend maps Agent lifecycle events to visual states (idle, working, speaking, tool_calling, error) and renders them in the office scene.
-
----
-
-## Contributing
-
-Contributions are welcome! Whether it's new visualization effects, 3D model improvements, console features, or performance optimizations.
-
-1. Fork this repository
-2. Create a feature branch (`git checkout -b feature/cool-effect`)
-3. Commit your changes (use [Conventional Commits](https://www.conventionalcommits.org/))
-4. Open a Pull Request
-
----
-
-## License
+## ライセンス
 
 [MIT](./LICENSE)

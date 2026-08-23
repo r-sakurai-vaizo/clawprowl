@@ -1,0 +1,61 @@
+{
+  "topbar": {
+    "activeCount": "稼働中 <strong>{{active}}/{{total}}</strong>",
+    "tokens": "トークン <strong>{{count}}</strong>",
+    "activeCountText": "稼働中",
+    "tokensLabel": "トークン",
+    "console": "管理画面",
+    "office": "オフィス",
+    "pageTitles": {
+      "dashboard": "ダッシュボード",
+      "channels": "連携チャンネル",
+      "skills": "スキル",
+      "cron": "定期タスク",
+      "agents": "AI社員",
+      "settings": "設定",
+      "fallback": "管理画面"
+    },
+    "viewMode": {
+      "switchTo": "{{mode}}表示に切り替え",
+      "mobileNotSupported": "小さい画面では3D表示を利用できません",
+      "webglNotSupported": "このブラウザーは3D描画に対応していません"
+    },
+    "theme": {
+      "switchToDark": "ダークモードに切り替え",
+      "switchToLight": "ライトモードに切り替え"
+    },
+    "language": {
+      "switchToEn": "日本語"
+    }
+  },
+  "sidebar": {
+    "menu": "メニュー",
+    "closeMenu": "メニューを閉じる",
+    "agents": "AI社員",
+    "expand": "サイドバーを開く",
+    "collapse": "サイドバーを折りたたむ",
+    "closeSidebar": "サイドバーを閉じる",
+    "expandSidebar": "サイドバーを開く",
+    "collapseSidebar": "サイドバーを折りたたむ",
+    "metricsTitle": "概要・推移",
+    "agentList": "AI社員一覧",
+    "subAgents": "サブエージェント",
+    "agentDetail": "AI社員の詳細",
+    "eventTimeline": "イベント履歴",
+    "searchPlaceholder": "AI社員を検索…",
+    "filters": {
+      "all": "すべて",
+      "active": "稼働中",
+      "idle": "待機中",
+      "error": "エラー"
+    }
+  },
+  "consoleNav": {
+    "dashboard": "ダッシュボード",
+    "agents": "AI社員",
+    "channels": "連携チャンネル",
+    "skills": "スキル",
+    "cron": "定期タスク",
+    "settings": "設定"
+  }
+}

@@ -1,7 +1,7 @@
 {
   "name": "@clawprowl/clawprowl",
   "version": "2026.3.5",
-  "description": "Visual monitoring & management frontend for ClawProwl Multi-Agent system",
+  "description": "AI社員の協働を2D・3Dオフィスで可視化するClawProwl日本語版",
   "keywords": [
     "ai-agents",
     "dashboard",
@@ -13,14 +13,14 @@
     "visualization",
     "vite"
   ],
-  "homepage": "https://github.com/clawprowl/clawprowl",
+  "homepage": "https://github.com/r-sakurai-vaizo/clawprowl",
   "bugs": {
-    "url": "https://github.com/clawprowl/clawprowl/issues"
+    "url": "https://github.com/r-sakurai-vaizo/clawprowl/issues"
   },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/clawprowl/clawprowl.git"
+    "url": "git+https://github.com/r-sakurai-vaizo/clawprowl.git"
   },
   "bin": {
     "clawprowl": "bin/clawprowl.js"
@@ -34,7 +34,11 @@
   "type": "module",
   "scripts": {
     "build": "tsc -b && vite build",
-    "check": "pnpm lint && pnpm format:check",
+    "build:demo": "tsc -b && vite build --mode mock",
+    "check": "pnpm lint && pnpm format:check && pnpm check:ja",
+    "check:ja": "node scripts/check-japanese.mjs",
+    "demo": "vite --mode mock",
+    "deploy:cloudflare": "pnpm build:demo && wrangler pages deploy dist --project-name clawprowl-ja --branch main",
     "dev": "vite",
     "format": "oxfmt --write src/",
     "format:check": "oxfmt --check src/",
@@ -75,15 +79,18 @@
     "@vitejs/plugin-react": "^4.5.0",
     "fake-indexeddb": "^6.2.5",
     "jsdom": "^26.1.0",
+    "oxfmt": "^0.63.0",
+    "oxlint": "^1.78.0",
     "tailwindcss": "^4.1.0",
     "typescript": "^5.8.0",
     "vite": "^6.3.0",
-    "vitest": "^3.1.0"
+    "vitest": "^3.1.0",
+    "wrangler": "^4.123.0"
   },
   "engines": {
     "node": ">=22"
   },
   "publishConfig": {
-  "access": "public"
-}
+    "access": "public"
+  }
 }

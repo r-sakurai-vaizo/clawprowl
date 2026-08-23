@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
+import { useTranslation } from "react-i18next";
+import i18n from "@/i18n";
 
 const BAGS_API_BASE = "https://public-api-v2.bags.fm/api/v1";
 
@@ -43,29 +45,20 @@ function shortWallet(wallet: string): string {
 
 function timeAgo(ts: string): string {
   const diff = Math.floor((Date.now() - new Date(ts).getTime()) / 1000);
-  if (diff < 60) return `${diff}s ago`;
-  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-  return `${Math.floor(diff / 86400)}d ago`;
+  if (diff < 60) return i18n.t("common:time.secondsAgo", { count: diff });
+  if (diff < 3600) return i18n.t("common:time.minutesAgo", { count: Math.floor(diff / 60) });
+  if (diff < 86400) return i18n.t("common:time.hoursAgo", { count: Math.floor(diff / 3600) });
+  return `${Math.floor(diff / 86400)}日前`;
 }
 
 // ── Fetch ──────────────────────────────────────────────────────────────────
 
-async function fetchBagsAnalytics(
-  tokenMint: string,
-  apiKey: string,
-): Promise<BagsAnalyticsData> {
+async function fetchBagsAnalytics(tokenMint: string, apiKey: string): Promise<BagsAnalyticsData> {
   const headers = { "x-api-key": apiKey };
 
   const [feesRes, statsRes, eventsRes] = await Promise.all([
-    fetch(
-      `${BAGS_API_BASE}/token-launch/lifetime-fees?tokenMint=${tokenMint}`,
-      { headers },
-    ),
-    fetch(
-      `${BAGS_API_BASE}/token-launch/claim-stats?tokenMint=${tokenMint}`,
-      { headers },
-    ),
+    fetch(`${BAGS_API_BASE}/token-launch/lifetime-fees?tokenMint=${tokenMint}`, { headers }),
+    fetch(`${BAGS_API_BASE}/token-launch/claim-stats?tokenMint=${tokenMint}`, { headers }),
     fetch(
       `${BAGS_API_BASE}/fee-share/token/claim-events?tokenMint=${tokenMint}&mode=offset&limit=20`,
       { headers },
@@ -81,7 +74,7 @@ async function fetchBagsAnalytics(
   return {
     lifetimeFees: feesJson.success ? feesJson.response : null,
     claimStats: statsJson.success ? statsJson.response : [],
-    claimEvents: eventsJson.success ? eventsJson.response?.events ?? [] : [],
+    claimEvents: eventsJson.success ? (eventsJson.response?.events ?? []) : [],
   };
 }
 
@@ -96,10 +89,8 @@ interface BagsAnalyticsPanelProps {
   apiKey?: string;
 }
 
-export function BagsAnalyticsPanel({
-  tokenMint = "",
-  apiKey = "",
-}: BagsAnalyticsPanelProps) {
+export function BagsAnalyticsPanel({ tokenMint = "", apiKey = "" }: BagsAnalyticsPanelProps) {
+  const { t } = useTranslation("panels");
   const [tab, setTab] = useState<TabId>("overview");
   const [data, setData] = useState<BagsAnalyticsData | null>(null);
   const [loading, setLoading] = useState(false);
@@ -108,20 +99,23 @@ export function BagsAnalyticsPanel({
   const [inputKey, setInputKey] = useState(apiKey);
   const [configured, setConfigured] = useState(false);
 
-  const load = useCallback(async (mint: string, key: string) => {
-    if (!mint || !key) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const result = await fetchBagsAnalytics(mint, key);
-      setData(result);
-      setConfigured(true);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to fetch");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const load = useCallback(
+    async (mint: string, key: string) => {
+      if (!mint || !key) return;
+      setLoading(true);
+      setError(null);
+      try {
+        const result = await fetchBagsAnalytics(mint, key);
+        setData(result);
+        setConfigured(true);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : t("bagsAnalytics.fetchFailed"));
+      } finally {
+        setLoading(false);
+      }
+    },
+    [t],
+  );
 
   // Auto-refresh every 30s when configured
   useEffect(() => {
@@ -131,9 +125,9 @@ export function BagsAnalyticsPanel({
   }, [configured, inputMint, inputKey, load]);
 
   const tabs: { id: TabId; label: string }[] = [
-    { id: "overview", label: "Overview" },
-    { id: "claimers", label: "Claimers" },
-    { id: "events", label: "Events" },
+    { id: "overview", label: t("bagsAnalytics.tabs.overview") },
+    { id: "claimers", label: t("bagsAnalytics.tabs.claimers") },
+    { id: "events", label: t("bagsAnalytics.tabs.events") },
   ];
 
   // ── Config form ──────────────────────────────────────────────────────────
@@ -141,30 +135,28 @@ export function BagsAnalyticsPanel({
     return (
       <div className="p-3 space-y-2">
         <p className="text-[10px] text-gray-500 dark:text-gray-400">
-          Enter your PROWL token mint and Bags API key to see live analytics.
+          {t("bagsAnalytics.description")}
         </p>
         <input
           className="w-full rounded border border-gray-200 bg-gray-50 px-2 py-1 text-xs text-gray-800 placeholder-gray-400 outline-none focus:border-blue-400 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:placeholder-gray-500"
-          placeholder="Token Mint (Base58)"
+          placeholder={t("bagsAnalytics.tokenMintPlaceholder")}
           value={inputMint}
           onChange={(e) => setInputMint(e.target.value)}
         />
         <input
           type="password"
           className="w-full rounded border border-gray-200 bg-gray-50 px-2 py-1 text-xs text-gray-800 placeholder-gray-400 outline-none focus:border-blue-400 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:placeholder-gray-500"
-          placeholder="Bags API Key"
+          placeholder={t("bagsAnalytics.apiKeyPlaceholder")}
           value={inputKey}
           onChange={(e) => setInputKey(e.target.value)}
         />
-        {error && (
-          <p className="text-[10px] text-red-500">{error}</p>
-        )}
+        {error && <p className="text-[10px] text-red-500">{error}</p>}
         <button
           onClick={() => load(inputMint, inputKey)}
           disabled={loading || !inputMint || !inputKey}
           className="w-full rounded bg-blue-600 py-1 text-xs font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
         >
-          {loading ? "Loading…" : "Connect"}
+          {loading ? t("bagsAnalytics.loading") : t("bagsAnalytics.connect")}
         </button>
       </div>
     );
@@ -177,7 +169,9 @@ export function BagsAnalyticsPanel({
       <div className="flex items-center justify-between px-3 py-1.5 border-b border-gray-100 dark:border-gray-800">
         <div className="flex items-center gap-1.5">
           <span className="text-[10px] font-bold text-purple-500">BAGS</span>
-          <span className="text-[9px] text-gray-400 uppercase tracking-wide">· PROWL Analytics</span>
+          <span className="text-[9px] text-gray-400 uppercase tracking-wide">
+            ・{t("bagsAnalytics.title")}
+          </span>
         </div>
         <div className="flex items-center gap-2">
           {loading && (
@@ -186,14 +180,17 @@ export function BagsAnalyticsPanel({
           <button
             onClick={() => load(inputMint, inputKey)}
             className="text-[9px] text-gray-400 hover:text-blue-400"
-            title="Refresh"
+            title={t("bagsAnalytics.refresh")}
           >
             ↻
           </button>
           <button
-            onClick={() => { setConfigured(false); setData(null); }}
+            onClick={() => {
+              setConfigured(false);
+              setData(null);
+            }}
             className="text-[9px] text-gray-400 hover:text-red-400"
-            title="Disconnect"
+            title={t("bagsAnalytics.disconnect")}
           >
             ✕
           </button>
@@ -230,37 +227,34 @@ export function BagsAnalyticsPanel({
 // ── Overview Tab ───────────────────────────────────────────────────────────
 
 function OverviewTab({ data }: { data: BagsAnalyticsData | null }) {
-  if (!data) return <EmptyState text="No data" />;
+  if (!data) return <EmptyState text={i18n.t("common:empty.noData")} />;
 
-  const totalClaimedLamports = data.claimStats.reduce(
-    (sum, s) => sum + Number(s.totalClaimed),
-    0,
-  );
+  const totalClaimedLamports = data.claimStats.reduce((sum, s) => sum + Number(s.totalClaimed), 0);
   const totalClaimers = data.claimStats.length;
   const totalEvents = data.claimEvents.length;
   const creator = data.claimStats.find((s) => s.isCreator);
 
   const cards = [
     {
-      label: "Lifetime Fees",
+      label: i18n.t("panels:bagsAnalytics.lifetimeFees"),
       value: data.lifetimeFees ? `${lamportsToSol(data.lifetimeFees)} SOL` : "—",
       color: "#a855f7",
       icon: "◎",
     },
     {
-      label: "Total Claimed",
+      label: i18n.t("panels:bagsAnalytics.totalClaimed"),
       value: `${lamportsToSol(String(totalClaimedLamports))} SOL`,
       color: "#22c55e",
       icon: "✓",
     },
     {
-      label: "Claimers",
+      label: i18n.t("panels:bagsAnalytics.claimers"),
       value: String(totalClaimers),
       color: "#3b82f6",
       icon: "👤",
     },
     {
-      label: "Claim Events",
+      label: i18n.t("panels:bagsAnalytics.claimEvents"),
       value: String(totalEvents),
       color: "#f97316",
       icon: "⚡",
@@ -271,16 +265,11 @@ function OverviewTab({ data }: { data: BagsAnalyticsData | null }) {
     <div className="space-y-2">
       <div className="grid grid-cols-2 gap-1.5">
         {cards.map((card) => (
-          <div
-            key={card.label}
-            className="rounded-lg bg-gray-50 px-2 py-2 dark:bg-gray-800"
-          >
+          <div key={card.label} className="rounded-lg bg-gray-50 px-2 py-2 dark:bg-gray-800">
             <div className="text-xs font-bold" style={{ color: card.color }}>
               {card.value}
             </div>
-            <div className="text-[9px] text-gray-500 dark:text-gray-400 mt-0.5">
-              {card.label}
-            </div>
+            <div className="text-[9px] text-gray-500 dark:text-gray-400 mt-0.5">{card.label}</div>
           </div>
         ))}
       </div>
@@ -288,7 +277,7 @@ function OverviewTab({ data }: { data: BagsAnalyticsData | null }) {
       {creator && (
         <div className="rounded-lg border border-purple-200 bg-purple-50 px-2 py-2 dark:border-purple-800 dark:bg-purple-950/30">
           <div className="text-[9px] font-semibold uppercase tracking-wide text-purple-500 mb-1">
-            Creator
+            {i18n.t("panels:bagsAnalytics.creator")}
           </div>
           <div className="flex items-center gap-2">
             {creator.pfp && (
@@ -306,8 +295,10 @@ function OverviewTab({ data }: { data: BagsAnalyticsData | null }) {
                 @{creator.twitterUsername || creator.bagsUsername || creator.username}
               </div>
               <div className="text-[9px] text-gray-500">
-                Royalty: {(creator.royaltyBps / 100).toFixed(1)}% ·{" "}
-                {lamportsToSol(creator.totalClaimed)} SOL claimed
+                {i18n.t("panels:bagsAnalytics.royalty", {
+                  percent: (creator.royaltyBps / 100).toFixed(1),
+                  amount: lamportsToSol(creator.totalClaimed),
+                })}
               </div>
             </div>
           </div>
@@ -320,11 +311,11 @@ function OverviewTab({ data }: { data: BagsAnalyticsData | null }) {
 // ── Claimers Tab ───────────────────────────────────────────────────────────
 
 function ClaimersTab({ stats }: { stats: ClaimStat[] }) {
-  if (stats.length === 0) return <EmptyState text="No claimers yet" />;
+  if (stats.length === 0) {
+    return <EmptyState text={i18n.t("panels:bagsAnalytics.noClaimers")} />;
+  }
 
-  const sorted = [...stats].sort(
-    (a, b) => Number(b.totalClaimed) - Number(a.totalClaimed),
-  );
+  const sorted = [...stats].sort((a, b) => Number(b.totalClaimed) - Number(a.totalClaimed));
 
   return (
     <div className="space-y-1">
@@ -351,9 +342,13 @@ function ClaimersTab({ stats }: { stats: ClaimStat[] }) {
               @{s.twitterUsername || s.bagsUsername || shortWallet(s.wallet)}
             </div>
             <div className="text-[9px] text-gray-400">
-              {(s.royaltyBps / 100).toFixed(1)}% royalty
+              {i18n.t("panels:bagsAnalytics.royaltyShort", {
+                percent: (s.royaltyBps / 100).toFixed(1),
+              })}
               {s.isCreator && (
-                <span className="ml-1 text-purple-500 font-semibold">· creator</span>
+                <span className="ml-1 text-purple-500 font-semibold">
+                  ・{i18n.t("panels:bagsAnalytics.creator")}
+                </span>
               )}
             </div>
           </div>
@@ -369,7 +364,9 @@ function ClaimersTab({ stats }: { stats: ClaimStat[] }) {
 // ── Events Tab ─────────────────────────────────────────────────────────────
 
 function EventsTab({ events }: { events: ClaimEvent[] }) {
-  if (events.length === 0) return <EmptyState text="No claim events yet" />;
+  if (events.length === 0) {
+    return <EmptyState text={i18n.t("panels:bagsAnalytics.noEvents")} />;
+  }
 
   return (
     <div className="space-y-1">
@@ -382,7 +379,9 @@ function EventsTab({ events }: { events: ClaimEvent[] }) {
             <div className="text-[10px] font-medium text-gray-700 dark:text-gray-300">
               {shortWallet(ev.wallet)}
               {ev.isCreator && (
-                <span className="ml-1 text-[9px] text-purple-500">creator</span>
+                <span className="ml-1 text-[9px] text-purple-500">
+                  {i18n.t("panels:bagsAnalytics.creator")}
+                </span>
               )}
             </div>
             <div className="text-[9px] text-gray-400">
@@ -394,7 +393,7 @@ function EventsTab({ events }: { events: ClaimEvent[] }) {
                 className="text-blue-400 hover:underline"
                 onClick={(e) => e.stopPropagation()}
               >
-                tx ↗
+                {i18n.t("panels:bagsAnalytics.transaction")}
               </a>
             </div>
           </div>
@@ -411,8 +410,6 @@ function EventsTab({ events }: { events: ClaimEvent[] }) {
 
 function EmptyState({ text }: { text: string }) {
   return (
-    <div className="py-4 text-center text-[10px] text-gray-400 dark:text-gray-500">
-      {text}
-    </div>
+    <div className="py-4 text-center text-[10px] text-gray-400 dark:text-gray-500">{text}</div>
   );
 }

@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, it, expect, beforeEach } from "vitest";
 import type { VisualAgent } from "@/gateway/types";
 import { useOfficeStore } from "@/store/office-store";
-import { SubAgentPanel } from "../SubAgentPanel";
+import { SubAgentPanel } from "./SubAgentPanel";
 
 function makeAgent(overrides: Partial<VisualAgent> & { id: string; name: string }): VisualAgent {
   return {
@@ -39,7 +39,7 @@ describe("SubAgentPanel", () => {
     useOfficeStore.setState({ agents: new Map([["p1", parent]]) });
 
     render(<SubAgentPanel />);
-    expect(screen.getByText("No Sub-Agents")).toBeDefined();
+    expect(screen.getByText("サブエージェントはいません")).toBeDefined();
   });
 
   it("renders sub-agent cards when sub-agents exist", () => {

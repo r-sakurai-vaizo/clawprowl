@@ -32,6 +32,8 @@ import {
 } from "@/lib/movement-animator";
 import { applyEventToAgent } from "./agent-reducer";
 import { applyMeetingGathering, detectMeetingGroups } from "./meeting-manager";
+import { getSubAgentName, getSubAgentProfile } from "@/lib/subagent-profiles";
+import { getDemoWorkTitle } from "@/lib/demo-work-tasks";
 import { computeMetrics } from "./metrics-reducer";
 
 const EVENT_HISTORY_LIMIT = 200;
@@ -52,12 +54,17 @@ let lastMeetingGroupsHash = "";
 const MEETING_GATHERING_THROTTLE_MS = 500;
 
 function isActiveStatus(status: AgentVisualStatus): boolean {
-  return status === "thinking" || status === "tool_calling" || status === "speaking" || status === "spawning";
+  return (
+    status === "thinking" ||
+    status === "tool_calling" ||
+    status === "speaking" ||
+    status === "spawning"
+  );
 }
 
 function getInitialChatDockHeight(): number {
-  if (typeof window === "undefined") return DEFAULT_CHAT_DOCK_HEIGHT;
-  const stored = localStorage.getItem(CHAT_DOCK_HEIGHT_KEY);
+  const stored =
+    typeof window === "undefined" ? null : window.localStorage?.getItem(CHAT_DOCK_HEIGHT_KEY);
   if (stored) {
     const parsed = parseInt(stored, 10);
     if (!Number.isNaN(parsed) && parsed >= 150 && parsed <= 800) return parsed;
@@ -66,10 +73,8 @@ function getInitialChatDockHeight(): number {
 }
 
 function getInitialTheme(): ThemeMode {
-  if (typeof window === "undefined") {
-    return "dark";
-  }
-  const stored = localStorage.getItem(THEME_STORAGE_KEY);
+  const stored =
+    typeof window === "undefined" ? null : window.localStorage?.getItem(THEME_STORAGE_KEY);
   if (stored === "light" || stored === "dark") {
     return stored;
   }
@@ -135,6 +140,7 @@ function createVisualAgent(
     movement: null,
     confirmed: true,
     avatarUrl,
+    currentTask: null,
   };
 }
 
@@ -204,7 +210,8 @@ function activateFromLoungePlaceholder(
       if (a.zone === "lounge") loungeOccupied.add(positionKey(a.position));
     }
     const freePos = loungePositions.find((p) => !loungeOccupied.has(positionKey(p)));
-    agent.position = freePos ?? loungePositions[0] ?? { x: ZONES.lounge.x + 60, y: ZONES.lounge.y + 40 };
+    agent.position = freePos ??
+      loungePositions[0] ?? { x: ZONES.lounge.x + 60, y: ZONES.lounge.y + 40 };
     agent.zone = "lounge";
   }
 }
@@ -234,6 +241,7 @@ export const useOfficeStore = create<OfficeStore>()(
     agentCosts: {} as Record<string, number>,
     currentPage: "office" as PageId,
     chatDockHeight: getInitialChatDockHeight(),
+    workTasks: [],
     maxSubAgents: 3,
     agentToAgentConfig: { enabled: false, allow: [] } as AgentToAgentConfig,
     runIdMap: new Map(),
@@ -253,6 +261,68 @@ export const useOfficeStore = create<OfficeStore>()(
           Object.assign(agent, patch);
           state.globalMetrics = computeMetrics(state.agents, state.globalMetrics);
         }
+      });
+    },
+
+    assignWorkTasks: (titles: string[], agentId?: string) => {
+      set((state) => {
+        const candidates = Array.from(state.agents.values()).filter(
+          (agent) => !agent.isSubAgent && !agent.isPlaceholder && agent.confirmed,
+        );
+        if (candidates.length === 0) return;
+
+        const cleanedTitles = titles
+          .map((title) => title.trim())
+          .filter(Boolean)
+          .slice(0, 8);
+        const autoOffset = state.workTasks.filter((task) => task.source === "user").length;
+
+        cleanedTitles.forEach((title, index) => {
+          const assignee = agentId
+            ? candidates.find((agent) => agent.id === agentId)
+            : candidates[(autoOffset + index) % candidates.length];
+          if (!assignee) return;
+
+          const task = {
+            id: `work-${Date.now()}-${index}-${assignee.id}`,
+            title,
+            assigneeId: assignee.id,
+            assigneeName: assignee.name,
+            createdAt: Date.now() + index,
+            source: "user" as const,
+            status: "working" as const,
+          };
+          assignee.currentTask = task;
+          assignee.status = "thinking";
+          assignee.lastActiveAt = Date.now();
+          assignee.speechBubble = {
+            text: `「${title}」に取り組んでいます。`,
+            timestamp: Date.now(),
+          };
+          state.workTasks.unshift(task);
+        });
+
+        state.workTasks = state.workTasks.slice(0, 60);
+        state.globalMetrics = computeMetrics(state.agents, state.globalMetrics);
+      });
+    },
+
+    completeWorkTask: (taskId: string) => {
+      set((state) => {
+        const task = state.workTasks.find((item) => item.id === taskId);
+        if (!task) return;
+        task.status = "done";
+
+        const assignee = state.agents.get(task.assigneeId);
+        if (assignee?.currentTask?.id === taskId) {
+          assignee.currentTask = null;
+          assignee.status = "idle";
+          assignee.speechBubble = {
+            text: `「${task.title}」が完了しました。`,
+            timestamp: Date.now(),
+          };
+        }
+        state.globalMetrics = computeMetrics(state.agents, state.globalMetrics);
       });
     },
 
@@ -305,7 +375,7 @@ export const useOfficeStore = create<OfficeStore>()(
             state.agents.delete(oldId);
 
             placeholder.id = info.agentId;
-            placeholder.name = info.label || `Sub-${info.agentId.slice(0, 6)}`;
+            placeholder.name = info.label || getSubAgentName(info.agentId);
             placeholder.isPlaceholder = false;
             placeholder.isSubAgent = true;
             placeholder.parentAgentId = parentId;
@@ -321,7 +391,7 @@ export const useOfficeStore = create<OfficeStore>()(
             }
             const agent = createVisualAgent(
               info.agentId,
-              info.label || `Sub-${info.agentId.slice(0, 6)}`,
+              info.label || getSubAgentName(info.agentId),
               true,
               occupied,
             );
@@ -404,7 +474,7 @@ export const useOfficeStore = create<OfficeStore>()(
           const phId = `placeholder-${phIdx}`;
           const ph: VisualAgent = {
             id: phId,
-            name: `Standby-${phIdx}`,
+            name: getSubAgentProfile(phIdx).name,
             status: "idle",
             position: freeLounge,
             currentTool: null,
@@ -464,9 +534,7 @@ export const useOfficeStore = create<OfficeStore>()(
         if (agent.movement && agent.movement.toZone === toZone) return;
 
         const fromZone = agent.zone;
-        const to =
-          targetPos ??
-          allocateNextPosition(state.agents, toZone, state.maxSubAgents);
+        const to = targetPos ?? allocateNextPosition(state.agents, toZone, state.maxSubAgents);
         const path = planWalkPath(agent.position, to, fromZone, toZone);
         const duration = calculateWalkDuration(path);
 
@@ -521,7 +589,7 @@ export const useOfficeStore = create<OfficeStore>()(
           if (state.agents.has(phId)) continue;
           const ph: VisualAgent = {
             id: phId,
-            name: `Standby-${i}`,
+            name: getSubAgentProfile(i).name,
             status: "idle",
             position: { ...loungePositions[i] },
             currentTool: null,
@@ -592,16 +660,30 @@ export const useOfficeStore = create<OfficeStore>()(
     initAgents: (summaries: AgentSummary[]) => {
       set((state) => {
         state.agents.clear();
+        state.workTasks = [];
         state.runIdMap.clear();
         state.sessionKeyMap.clear();
 
         const occupied = new Set<string>();
         for (const summary of summaries) {
           const name = summary.identity?.name ?? summary.name ?? summary.id;
-          const KNOWN_AVATARS: Record<string, string> = { PROWL: "https://pbs.twimg.com/profile_images/2029487683278708736/JqpyzvWW_400x400.jpg", "0xDeployer": "https://pbs.twimg.com/profile_images/1816688728951476224/PkVN69ln_400x400.jpg", FINN: "https://pbs.twimg.com/profile_images/2003998762503745536/jDpf21Ig_400x400.jpg", BANKR: "https://pbs.twimg.com/profile_images/1951545493936545792/AriqgxQN_400x400.jpg" };
-          const _name = summary.identity?.name ?? summary.name ?? summary.id;
-          const avatarUrl = summary.identity?.avatarUrl ?? (summary.identity as { avatar?: string })?.avatar ?? KNOWN_AVATARS[_name];
+          const avatarUrl =
+            summary.identity?.avatarUrl ?? (summary.identity as { avatar?: string })?.avatar;
           const agent = createVisualAgent(summary.id, name, false, occupied, true, avatarUrl);
+          const demoTitle = getDemoWorkTitle(summary.id);
+          if (demoTitle) {
+            const task = {
+              id: `demo-work-${summary.id}`,
+              title: demoTitle,
+              assigneeId: summary.id,
+              assigneeName: name,
+              createdAt: Date.now(),
+              source: "demo" as const,
+              status: "working" as const,
+            };
+            agent.currentTask = task;
+            state.workTasks.push(task);
+          }
           occupied.add(positionKey(agent.position));
           state.agents.set(summary.id, agent);
         }
@@ -609,9 +691,7 @@ export const useOfficeStore = create<OfficeStore>()(
         state.globalMetrics = computeMetrics(state.agents, state.globalMetrics);
       });
       // Prefill lounge with placeholder sub-agents
-      useOfficeStore.getState().prefillLoungePlaceholders(
-        useOfficeStore.getState().maxSubAgents,
-      );
+      useOfficeStore.getState().prefillLoungePlaceholders(useOfficeStore.getState().maxSubAgents);
     },
 
     processAgentEvent: (event: AgentEventPayload) => {
@@ -619,6 +699,7 @@ export const useOfficeStore = create<OfficeStore>()(
         value: { parentId: string; info: SubAgentInfo } | null;
       } = { value: null };
       let newUnconfirmedId: string | null = null;
+      let collaborationEnded = false;
 
       set((state) => {
         const parsed = parseAgentEvent(event);
@@ -662,8 +743,12 @@ export const useOfficeStore = create<OfficeStore>()(
             info: {
               sessionKey: event.sessionKey ?? event.runId,
               agentId: dataAgentId,
-              label: `Sub-${dataAgentId.slice(0, 8)}`,
-              task: "",
+              label:
+                typeof event.data.label === "string"
+                  ? event.data.label
+                  : getSubAgentName(dataAgentId),
+              task:
+                typeof event.data.task === "string" ? event.data.task : "依頼された業務を支援する",
               requesterSessionKey: event.sessionKey ?? "",
               startedAt: event.ts,
             },
@@ -680,12 +765,24 @@ export const useOfficeStore = create<OfficeStore>()(
             for (const a of state.agents.values()) {
               occupied.add(positionKey(a.position));
             }
-            const agent = createVisualAgent(agentId, `Agent-${agentId.slice(0, 6)}`, false, occupied, true);
+            const agent = createVisualAgent(
+              agentId,
+              `AI社員-${agentId.slice(0, 6)}`,
+              false,
+              occupied,
+              true,
+            );
             agent.runId = event.runId;
             state.agents.set(agentId, agent);
           } else {
             // Create as unconfirmed — will be confirmed by poller or timeout
-            const agent = createVisualAgent(agentId, `Agent-${agentId.slice(0, 6)}`, false, new Set(), false);
+            const agent = createVisualAgent(
+              agentId,
+              `AI社員-${agentId.slice(0, 6)}`,
+              false,
+              new Set(),
+              false,
+            );
             agent.runId = event.runId;
             state.agents.set(agentId, agent);
             newUnconfirmedId = agentId;
@@ -705,6 +802,23 @@ export const useOfficeStore = create<OfficeStore>()(
           if (state.agentToAgentConfig.enabled) {
             scheduleMeetingGathering();
           }
+        }
+
+        if (event.sessionKey && event.stream === "lifecycle" && event.data.phase === "end") {
+          const participants = state.sessionKeyMap.get(event.sessionKey) ?? [];
+          const remaining = participants.filter((id) => id !== agentId);
+          if (remaining.length === 0) {
+            state.sessionKeyMap.delete(event.sessionKey);
+          } else {
+            state.sessionKeyMap.set(event.sessionKey, remaining);
+          }
+          const linkCount = state.links.length;
+          state.links = state.links.filter(
+            (link) =>
+              link.sessionKey !== event.sessionKey ||
+              (link.sourceId !== agentId && link.targetId !== agentId),
+          );
+          collaborationEnded = state.links.length !== linkCount;
         }
 
         const agent = state.agents.get(agentId);
@@ -745,6 +859,10 @@ export const useOfficeStore = create<OfficeStore>()(
         useOfficeStore.getState().addSubAgent(subToCreate.parentId, subToCreate.info);
       }
 
+      if (collaborationEnded) {
+        scheduleMeetingGathering();
+      }
+
       // Schedule auto-confirmation timeout for unconfirmed agents
       if (newUnconfirmedId) {
         const id = newUnconfirmedId;
@@ -760,11 +878,7 @@ export const useOfficeStore = create<OfficeStore>()(
       }
 
       // Sub-agent lifecycle end via explicit payload (mock adapter)
-      if (
-        event.stream === "lifecycle" &&
-        event.data.phase === "end" &&
-        event.data.agentId
-      ) {
+      if (event.stream === "lifecycle" && event.data.phase === "end" && event.data.agentId) {
         const endId = event.data.agentId as string;
         const sub = useOfficeStore.getState().agents.get(endId);
         if (sub?.isSubAgent && !sub.isPlaceholder) {
@@ -803,7 +917,7 @@ export const useOfficeStore = create<OfficeStore>()(
         state.theme = theme;
       });
       try {
-        localStorage.setItem(THEME_STORAGE_KEY, theme);
+        window.localStorage?.setItem(THEME_STORAGE_KEY, theme);
       } catch {
         // localStorage unavailable
       }
@@ -847,7 +961,7 @@ export const useOfficeStore = create<OfficeStore>()(
         state.chatDockHeight = height;
       });
       try {
-        localStorage.setItem(CHAT_DOCK_HEIGHT_KEY, String(height));
+        window.localStorage?.setItem(CHAT_DOCK_HEIGHT_KEY, String(height));
       } catch {
         // localStorage unavailable
       }
@@ -975,11 +1089,7 @@ function scheduleMeetingGathering(): void {
     const state = useOfficeStore.getState();
     if (!state.agentToAgentConfig.enabled) return;
 
-    const groups = detectMeetingGroups(
-      state.links,
-      state.agents,
-      state.agentToAgentConfig.allow,
-    );
+    const groups = detectMeetingGroups(state.links, state.agents, state.agentToAgentConfig.allow);
     const hash = JSON.stringify(groups.map((g) => g.agentIds.sort()));
     if (hash === lastMeetingGroupsHash) return;
     lastMeetingGroupsHash = hash;

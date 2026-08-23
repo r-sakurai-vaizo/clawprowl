@@ -28,7 +28,8 @@ export function CreateAgentDialog() {
       return;
     }
     const ws =
-      workspace.trim() || `~/.clawprowl/workspace-${name.trim().toLowerCase().replace(/\s+/g, "-")}`;
+      workspace.trim() ||
+      `~/.clawprowl/workspace-${name.trim().toLowerCase().replace(/\s+/g, "-")}`;
     setCreating(true);
     setError("");
     const agentId = await createAgent({

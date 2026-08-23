@@ -94,7 +94,9 @@ export function AppShell({ children, wsClient, isMobile = false }: AppShellProps
               type="button"
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
               className="fixed bottom-4 left-4 z-20 flex h-12 w-12 items-center justify-center rounded-full bg-gray-800 text-white shadow-lg hover:bg-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors"
-              aria-label={sidebarCollapsed ? t("sidebar.expandSidebar") : t("sidebar.collapseSidebar")}
+              aria-label={
+                sidebarCollapsed ? t("sidebar.expandSidebar") : t("sidebar.collapseSidebar")
+              }
             >
               <Users className="h-5 w-5" />
             </button>
@@ -110,7 +112,9 @@ export function AppShell({ children, wsClient, isMobile = false }: AppShellProps
                 />
                 <aside className="fixed inset-x-0 bottom-0 top-12 z-40 overflow-hidden border-t border-gray-200 bg-white shadow-xl dark:border-gray-700 dark:bg-gray-900">
                   <div className="flex items-center justify-between border-b border-gray-100 px-4 py-2 dark:border-gray-800">
-                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">Agents</span>
+                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                      {t("sidebar.agents")}
+                    </span>
                     <button
                       type="button"
                       onClick={() => setSidebarCollapsed(true)}
